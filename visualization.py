@@ -59,7 +59,6 @@ def visualize_ts(trainer, show_plot=False, save_plot=False, i_component=-1, y_id
                                      trainer.params['ts_plot_filename']), scale=10,width=800)
     if show_plot:
         fig.show()
-
     return True
 
 def visualize_metrics(trainer, save_plot=True):
