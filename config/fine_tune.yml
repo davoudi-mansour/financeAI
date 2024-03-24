@@ -1,0 +1,35 @@
+dataset_path: ./datasets/data.csv
+anomaly_dates_path: ./datasets/anomaly_dates.conf
+plots_directory: ./plot
+ts_plot_filename: ts.png
+tmp_directory: ./tmp
+save_model_path: ./model_files/model.pt
+datetime_column: date
+target_columns:
+  - High
+  - Low
+input_columns:
+  - High
+  - Low
+  - Close
+
+time_freq: 1H
+seq_len_in: 48
+seq_len_out: 1
+seq_len_dec: 2
+batch_size: 64
+lr: 0.001
+model: transformer
+dim_val: 64
+n_heads: 2
+n_encoder_layers: 1
+n_decoder_layers: 1
+DEVICE: cpu
+train_portion: 1
+early_stopping_patience: 20
+num_epochs: 3
+print_interval: 1
+displaying_progress_bar: True
+show_anomalies_in_plot: False
+teacher_forcing: 0.5
+norm_type: min_max

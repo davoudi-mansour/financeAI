@@ -1,0 +1,55 @@
+time_freq:
+  - 1H
+seq_len_in: # number of time_freqs for encoder input
+  - 10
+#  - 336
+#  - 504
+#  - 672
+seq_len_dec: # number of time_freqs for decoder input
+  - 1
+seq_len_out: # number of time_freqs for decoder output
+  - 1
+batch_size:
+  - 2
+#  - 128
+#  - 256
+lr:
+  - 0.01
+#  - 0.001
+#  - 0.0001
+model:
+  - linear
+  - lstm
+  - transformer
+model_hyper_params:
+  linear:
+      hidden_size:
+          - 64
+#          - 128
+#          - 256
+  lstm:
+      hidden_size:
+          - 16
+#          - 32
+#          - 64
+      num_layers:
+          - 1
+#          - 2
+#          - 3
+  transformer:
+      dim_val:
+          - 16
+#          - 32
+#          - 64
+      n_heads:
+          - 1
+#          - 2
+#          - 4
+      n_encoder_layers:
+          - 1
+#          - 2
+#          - 3
+      n_decoder_layers:
+          - 1
+#          - 2
+#          - 3

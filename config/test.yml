@@ -1,0 +1,29 @@
+dataset_path: ./datasets/EURJPY_Hourly.csv
+anomaly_dates_path: ./datasets/anomaly_dates.conf
+plots_directory: ./plot
+ts_plot_filename: ts.png
+tmp_directory: ./tmp
+save_model_path: ./model_files/model.pt
+datetime_column: date
+target_column: High
+input_columns:
+  - GET_0_4k
+
+time_freq: 1H
+
+seq_len_in: 240
+seq_len_out: 1
+seq_len_dec: 4
+batch_size: 64
+lr: 1e-4
+model: lstm
+hidden_size: 128
+num_layers: 2
+DEVICE: cuda:0
+train_portion: 0
+early_stopping_patience: 30
+num_epochs: 200
+print_interval: 1
+displaying_progress_bar: False
+show_anomalies_in_plot: False
+norm_type: min_max

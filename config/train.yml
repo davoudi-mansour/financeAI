@@ -1,0 +1,38 @@
+dataset_path: ./datasets/EURJPY_Hourly.csv
+plots_directory: ./plot
+ts_plot_filename: Figure.png
+tmp_directory: ./tmp
+save_model_path: ./model_files/model.pt
+datetime_column: date
+target_columns:
+  - High
+  - Volume
+input_columns:
+  - High
+  - Low
+  - Close
+  - Volume
+time_freq: 1H
+seq_len_in: 10
+seq_len_out: 5
+seq_len_dec: 4
+batch_size: 256
+lr: 3e-3
+#model: linear
+#hidden_size: 32
+#model: lstm
+#hidden_size: 32
+#num_layers: 2
+model: transformer
+dim_val: 64
+n_heads: 1
+n_encoder_layers: 1
+n_decoder_layers: 1
+DEVICE: cuda:0
+train_portion: 0.6
+early_stopping_patience: 30
+num_epochs: 2
+teacher_forcing: 0.5
+print_interval: 1
+displaying_progress_bar: True
+norm_type: min_max

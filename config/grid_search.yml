@@ -1,0 +1,25 @@
+gridsearch_output_path: ./config/gridsearch_output.yml
+dataset_path: ./datasets/data.csv
+anomaly_dates_path: ./datasets/anomaly_dates.conf
+plots_directory: ./plot
+ts_plot_filename: ts.png
+tmp_directory: ./tmp
+save_model_path: ./model_files/model.pt
+datetime_column: date
+target_columns:
+  - High
+  - Low
+input_columns:
+  - High
+  - Low
+  - Close
+
+DEVICE: cpu
+train_portion: 0.5
+teacher_forcing: 0.5
+early_stopping_patience: 20
+num_epochs: 3
+print_interval: False
+displaying_progress_bar: False
+show_anomalies_in_plot: False
+norm_type: min_max
