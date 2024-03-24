@@ -65,7 +65,6 @@ def visualize_ts(trainer, show_plot=False, save_plot=False, i_component=-1, y_id
 def visualize_metrics(trainer, save_plot=True):
     for metric in ['rmse', 'mae', 'smape', 'loss']:
         title = str(trainer.params['time_freq']) + ' | ' + metric
-
         train_metric = trainer.metric_tracker.train_loss[metric]
         val_metric = trainer.metric_tracker.val_loss[metric]
         x = range(len(train_metric))
