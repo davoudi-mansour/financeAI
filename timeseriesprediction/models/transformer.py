@@ -316,8 +316,6 @@ class TimeSeriesTransformer(nn.Module):
                 outputs.append(decoder_output)
 
             decoder_output_trg = torch.cat(outputs, dim=0)
-            # print("teacher_forcing","outputs",len(outputs),teacher_forcing,"decoder_output_trg=",decoder_output_trg.shape,"src=",src.shape,"decoder_input=",decoder_input.shape )
-
         pred = decoder_output_trg
         pred = pred.view((pred.size(1), pred.size(0), pred.size(2)))
 

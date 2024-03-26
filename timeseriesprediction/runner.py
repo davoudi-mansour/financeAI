@@ -13,7 +13,7 @@ if __name__ == '__main__':
         exit(f'running mode "{running_mode}" is not supported!')
 
     if running_mode == 'train':
-        model_trainer = Trainer('./config/train.yml')
+        model_trainer = Trainer('config/train.yml')
         model_trainer.train()
         visualize_ts(model_trainer, show_plot=True, save_plot=True)
         for y_id, target_column in enumerate(model_trainer.params['target_columns']):
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         print('Test finished!')
 
     elif running_mode == 'gridsearch':
-        model_grid_searcher = GridSearcher(gridsearch_config_path='./config/grid_search.yml',
-                                           gridsearch_space_config_path='./config/grid_search_space.yml')
+        model_grid_searcher = GridSearcher(gridsearch_config_path='config/grid_search.yml',
+                                           gridsearch_space_config_path='config/grid_search_space.yml')
         model_grid_searcher.gridsearch()
         print('Grid Search finished!')

@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 plt.ioff()
-
 def visualize_ts(trainer, show_plot=False, save_plot=False, i_component=-1, y_id=0):
     if 'train' in trainer.ts_ds.mode:
         preds_train = trainer.evaluate_train['preds'].copy()

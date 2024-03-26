@@ -1,6 +1,5 @@
 import torch
 
-
 class Norm:
     def __init__(self, data, norm_type=None):
         self.norm_type = norm_type

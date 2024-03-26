@@ -59,10 +59,10 @@ class GridSearcher:
     def train_with_params(self, params):
         trainer_params = params.copy()
         trainer_params.update(self.gridsearch_config)
-        with open('./tmp/tmp_grid_search.yml', 'w') as outfile:
+        with open('tmp/tmp_grid_search.yml', 'w') as outfile:
             yaml.dump(trainer_params, outfile, default_flow_style=False)
 
-        model_trainer = Trainer(model_config_path='./tmp/tmp_grid_search.yml')
+        model_trainer = Trainer(model_config_path='tmp/tmp_grid_search.yml')
         model_trainer.train()
         score = model_trainer.evaluate_test['smape']
         print(score)
