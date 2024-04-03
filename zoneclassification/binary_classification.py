@@ -78,7 +78,7 @@ class CNNBiLSTM(nn.Module):
         return x
 
 class CNNTransformer(nn.Module):
-    def __init__(self, d_model=64, nhead=8, num_layers=2, dropout_rate=0.5, l2_reg=0.001):
+    def __init__(self, d_model=16, nhead=2, num_layers=1, dropout_rate=0.5, l2_reg=0.001):
         super(CNNTransformer, self).__init__()
         self.conv1 = nn.Conv1d(in_channels=1, out_channels=d_model, kernel_size=3)
         self.batch_norm = nn.BatchNorm1d(d_model)  # Batch normalization layer
@@ -106,7 +106,7 @@ class CNNTransformer(nn.Module):
 
 # Initialize model, loss function, and optimizer
 
-model = CNNBiLSTM().cuda()  # Move model to GPU
+model = CNNTransformer().cuda()  # Move model to GPU
 criterion = nn.BCELoss()  # Binary Cross Entropy Loss for binary classification
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -116,18 +116,18 @@ with open('dataset/hourly_dataloader.pkl', 'rb') as f:
 
 # Generate indices for train-validation split
 indices = list(range(len(loaded_dataloader.dataset)))
-train_indices, val_indices = train_test_split(indices, test_size=0.2, random_state=42)
+train_indices, val_indices = train_test_split(indices, test_size=0.1, random_state=42)
 
 # Create Subset objects for training, validation, and testing sets
 train_dataset = Subset(loaded_dataloader.dataset, train_indices)
 val_dataset = Subset(loaded_dataloader.dataset, val_indices)
 
 # Create DataLoader for training, validation, and testing sets with batch size 32
-train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=True)
+train_dataloader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+val_dataloader = DataLoader(val_dataset, batch_size=16, shuffle=True)
 
 # Early stopping parameters
-patience = 10
+patience = 5
 best_val_loss = float('inf')
 best_model_path = None
 epochs_without_improvement = 0
