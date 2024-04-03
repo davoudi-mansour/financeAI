@@ -7,8 +7,8 @@ import pickle
 hourly_samples = np.load('data/hourly_samples.npy')
 sequences = []
 labels = []
-zone_area = 0.3
-window_length = 5000
+zone_area = 0.25
+window_length = 500
 pivot_index = window_length
 
 for i in range(0, len(hourly_samples)-window_length):
@@ -20,14 +20,26 @@ for i in range(0, len(hourly_samples)-window_length):
         while True:
             price_change = hourly_samples[pivot_index] - last_price
             counter += 1
-            if price_change >= zone_area:
+            if price_change >= 2*zone_area:
+                label = 0
+                normalized_sequence = (np.array(sequence) - np.min(sequence)) / (np.max(sequence) - np.min(sequence))
+                sequences.append(normalized_sequence)
+                labels.append(label)
+                break
+            elif price_change >= zone_area and price_change < 2*zone_area:
                 label = 1
                 normalized_sequence = (np.array(sequence) - np.min(sequence)) / (np.max(sequence) - np.min(sequence))
                 sequences.append(normalized_sequence)
                 labels.append(label)
                 break
-            elif price_change < -zone_area:
-                label = 0
+            elif price_change <= -zone_area and price_change > -2*zone_area:
+                label = 2
+                normalized_sequence = (np.array(sequence) - np.min(sequence)) / (np.max(sequence) - np.min(sequence))
+                sequences.append(normalized_sequence)
+                labels.append(label)
+                break
+            elif price_change <= -2*zone_area:
+                label = 3
                 normalized_sequence = (np.array(sequence) - np.min(sequence)) / (np.max(sequence) - np.min(sequence))
                 sequences.append(normalized_sequence)
                 labels.append(label)
