@@ -12,7 +12,6 @@ window_length = 500
 pivot_index = window_length
 
 for i in range(0, len(hourly_samples)-window_length):
-
     sequence = hourly_samples[pivot_index-window_length:pivot_index]
     last_price = sequence[-1]
     counter = 0

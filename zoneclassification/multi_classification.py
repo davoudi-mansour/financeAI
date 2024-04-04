@@ -8,7 +8,6 @@ import pickle
 import matplotlib.pyplot as plt
 
 NUM_CLASSES = 4
-
 class CNNBiLSTM(nn.Module):
     def __init__(self, dropout_rate=0.1, l2_reg=0.001, num_classes=NUM_CLASSES):
         super(CNNBiLSTM, self).__init__()
