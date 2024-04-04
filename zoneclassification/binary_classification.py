@@ -192,7 +192,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.title('Training and Validation Loss')
 plt.legend()
-plt.savefig('result.png')  # Save the plot as PNG image
+plt.savefig('loss.png')  # Save the plot as PNG image
 plt.show()
 
 # Load the best model state
