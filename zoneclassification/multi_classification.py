@@ -120,7 +120,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.title('Training and Validation Loss')
 plt.legend()
-plt.savefig('result.png')
+plt.savefig('results/loss.png')
 plt.show()
 
 # Load the best model state
