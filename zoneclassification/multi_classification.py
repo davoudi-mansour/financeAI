@@ -51,7 +51,7 @@ train_dataset = Subset(loaded_dataloader.dataset, train_indices)
 val_dataset = Subset(loaded_dataloader.dataset, val_indices)
 
 # Create DataLoader for training, validation, and testing sets with batch size 32
-train_dataloader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True)
 val_dataloader = DataLoader(val_dataset, batch_size=16, shuffle=True)
 
 # Early stopping parameters
