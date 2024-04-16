@@ -54,28 +54,75 @@ class CNNBiLSTMWithAttention(nn.Module):
 class CNNBiLSTM(nn.Module):
     def __init__(self, dropout_rate=0.2, l2_reg=0.001):
         super(CNNBiLSTM, self).__init__()
-        self.conv1 = nn.Conv1d(in_channels=1, out_channels=64, kernel_size=2)
-        self.batch_norm = nn.BatchNorm1d(64)  # Batch normalization layer
+        self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=12)
+        self.conv2 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=48)
+        self.batch_norm1 = nn.BatchNorm1d(32)
+        self.batch_norm2 = nn.BatchNorm1d(32)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(p=dropout_rate)
-        self.lstm = nn.LSTM(input_size=64, hidden_size=16, num_layers=1, batch_first=True, bidirectional=True)
-        self.fc = nn.Linear(32, 1)  # Output size 1 for binary classification
+        self.lstm = nn.LSTM(input_size=32, hidden_size=16, num_layers=1, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(32, 1)  # Adjusted input size for concatenation
         self.sigmoid = nn.Sigmoid()
 
         # Add L2 regularization to the linear layer
-        self.fc.weight_regularizer = torch.nn.Parameter(torch.randn(64, 1) * l2_reg)
+        self.fc.weight_regularizer = torch.nn.Parameter(torch.randn(32, 1) * l2_reg)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.batch_norm(x)  # Apply batch normalization
-        x = self.relu(x)
-        x = self.dropout(x)
-        x = x.permute(0, 2, 1)  # Reshape for LSTM input
-        output, _ = self.lstm(x)
-        x = output[:, -1, :]  # Use only the last output of LSTM
+        # Apply first CNN layer
+        x1 = self.conv1(x)
+        x1 = self.batch_norm1(x1)  # Apply batch normalization
+        x1 = self.relu(x1)
+        x1 = self.dropout(x1)
+
+        # Apply second CNN layer
+        x2 = self.conv2(x)
+        x2 = self.batch_norm2(x2)  # Apply batch normalization
+        x2 = self.relu(x2)
+        x2 = self.dropout(x2)
+
+        # Concatenate the outputs of both CNN layers
+        x_concat = torch.cat((x1, x2), dim=2)
+
+        # Reshape for LSTM input
+        x_concat = x_concat.permute(0, 2, 1)
+
+        # Apply LSTM
+        output, _ = self.lstm(x_concat)
+
+        # Use only the last output of LSTM
+        x = output[:, -1, :]
+
+        # Apply fully connected layer and sigmoid activation
         x = self.fc(x)
-        x = self.sigmoid(x)  # Apply sigmoid activation
+        x = self.sigmoid(x)
+
         return x
+
+# class CNNBiLSTM(nn.Module):
+#     def __init__(self, dropout_rate=0.2, l2_reg=0.001):
+#         super(CNNBiLSTM, self).__init__()
+#         self.conv1 = nn.Conv1d(in_channels=1, out_channels=64, kernel_size=5)
+#         self.batch_norm = nn.BatchNorm1d(64)  # Batch normalization layer
+#         self.relu = nn.ReLU()
+#         self.dropout = nn.Dropout(p=dropout_rate)
+#         self.lstm = nn.LSTM(input_size=64, hidden_size=16, num_layers=1, batch_first=True, bidirectional=True)
+#         self.fc = nn.Linear(32, 1)  # Output size 1 for binary classification
+#         self.sigmoid = nn.Sigmoid()
+#
+#         # Add L2 regularization to the linear layer
+#         self.fc.weight_regularizer = torch.nn.Parameter(torch.randn(64, 1) * l2_reg)
+#
+#     def forward(self, x):
+#         x = self.conv1(x)
+#         x = self.batch_norm(x)  # Apply batch normalization
+#         x = self.relu(x)
+#         x = self.dropout(x)
+#         x = x.permute(0, 2, 1)  # Reshape for LSTM input
+#         output, _ = self.lstm(x)
+#         x = output[:, -1, :]  # Use only the last output of LSTM
+#         x = self.fc(x)
+#         x = self.sigmoid(x)  # Apply sigmoid activation
+#         return x
 
 class CNNTransformer(nn.Module):
     def __init__(self, d_model=16, nhead=2, num_layers=1, dropout_rate=0.5, l2_reg=0.001):
@@ -106,12 +153,12 @@ class CNNTransformer(nn.Module):
 
 # Initialize model, loss function, and optimizer
 
-model = CNNTransformer().cuda()  # Move model to GPU
+model = CNNBiLSTM().cuda()  # Move model to GPU
 criterion = nn.BCELoss()  # Binary Cross Entropy Loss for binary classification
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Load DataLoader
-with open('dataset/hourly_dataloader.pkl', 'rb') as f:
+with open('dataset/_15min_dataloader.pkl', 'rb') as f:
     loaded_dataloader = pickle.load(f)
 
 # Generate indices for train-validation split
@@ -127,7 +174,7 @@ train_dataloader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 val_dataloader = DataLoader(val_dataset, batch_size=16, shuffle=True)
 
 # Early stopping parameters
-patience = 5
+patience = 10
 best_val_loss = float('inf')
 best_model_path = None
 epochs_without_improvement = 0
