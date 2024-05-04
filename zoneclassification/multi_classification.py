@@ -1,25 +1,72 @@
+import torch
+from torch.utils.data import Dataset
+import numpy as np
 import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Subset, DataLoader
-from sklearn.model_selection import train_test_split
-import pickle
+from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
-NUM_CLASSES = 4
+def min_max_normalize(data):
+    min_val = min(data)
+    max_val = max(data)
+    normalized_data = [(x - min_val) / (max_val - min_val) for x in data]
+    return normalized_data
+class FinancialTimeSeriesDataset(Dataset):
+
+    def __init__(self, data, window_length, zone_area, stop_area, indexes=None):
+        self.data = data
+        self.window_length = window_length
+        self.zone_area = zone_area
+        self.stop_area = stop_area
+        self.indexes = indexes
+
+    def __len__(self):
+        return len(self.indexes)
+
+    def __getitem__(self, idx):
+        start_idx = self.indexes[idx]
+        sequence = self.data[start_idx:start_idx + self.window_length]
+        last_price = sequence[-1]
+        candidate = start_idx + self.window_length
+
+        while candidate < len(self.data):
+            price_change = self.data[candidate] - last_price
+            if abs(price_change) >= self.zone_area:
+                val_sequence = self.data[start_idx + self.window_length:candidate]
+                state = 0 if price_change >= self.zone_area else 1
+                if self.validate(self.stop_area, last_price, val_sequence, state):
+                    label = 0 if price_change >= self.zone_area else 2
+                else:
+                    label = 1
+                normalized_sequence = min_max_normalize(sequence)
+                return torch.tensor(normalized_sequence, dtype=torch.float32), torch.tensor(label, dtype=torch.long)
+            candidate += 1
+        return torch.zeros(self.window_length), torch.tensor(1)  # In case no valid data found
+
+    def validate(self, stop_area, last_price, val_sequence, state):
+        flag = True
+        if state == 0:
+            for item in val_sequence:
+                if item - last_price < - stop_area:
+                    flag = False
+        else:
+            for item in val_sequence:
+                if item - last_price > stop_area:
+                    flag = False
+        return flag
+
+NUM_CLASSES = 3
 class CNNBiLSTM(nn.Module):
-    def __init__(self, dropout_rate=0.1, l2_reg=0.001, num_classes=NUM_CLASSES):
+    def __init__(self, dropout_rate=0.3, num_classes=NUM_CLASSES):
         super(CNNBiLSTM, self).__init__()
-        self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=5)
+        self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=3)
         self.batch_norm = nn.BatchNorm1d(32)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(p=dropout_rate)
         self.lstm = nn.LSTM(input_size=32, hidden_size=16, num_layers=1, batch_first=True, bidirectional=True)
         self.fc = nn.Linear(32, num_classes)  # Output size changed to num_classes for multi-class classification
-
-        # Add L2 regularization to the linear layer
-        self.fc.weight_regularizer = torch.nn.Parameter(torch.randn(64, num_classes) * l2_reg)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -36,26 +83,34 @@ class CNNBiLSTM(nn.Module):
 # Initialize model, loss function, and optimizer
 model = CNNBiLSTM().cuda()  # Move model to GPU
 criterion = nn.CrossEntropyLoss()  # Cross Entropy Loss for multi-class classification
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
 
-# Load DataLoader
-with open('dataset/hourly_dataloader.pkl', 'rb') as f:
-    loaded_dataloader = pickle.load(f)
+_15min_samples = np.load('data/_5min_samples.npy')
+zone_area = 0.0038
+stop_area = zone_area / 2
+window_length = 10000
 
-# Generate indices for train-validation split
-indices = list(range(len(loaded_dataloader.dataset)))
-train_indices, val_indices = train_test_split(indices, test_size=0.1, random_state=42)
+# Calculate total number of sequences
+total_sequences = len(range(0, len(_15min_samples) - window_length, 10))
+train_size = int(total_sequences * 0.9)
+test_size = total_sequences - train_size
+sequences = range(0, len(_15min_samples) - window_length, 10)
+# Generate indices for training and testing
+indices = list(sequences)
+np.random.shuffle(indices)
+train_indices = indices[:train_size]
+test_indices = indices[train_size:]
 
-# Create Subset objects for training, validation, and testing sets
-train_dataset = Subset(loaded_dataloader.dataset, train_indices)
-val_dataset = Subset(loaded_dataloader.dataset, val_indices)
+# Create training and testing datasets
+train_dataset = FinancialTimeSeriesDataset(_15min_samples, window_length, zone_area, stop_area, indexes=train_indices)
+test_dataset = FinancialTimeSeriesDataset(_15min_samples, window_length, zone_area, stop_area, indexes=test_indices)
 
-# Create DataLoader for training, validation, and testing sets with batch size 32
-train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-val_dataloader = DataLoader(val_dataset, batch_size=16, shuffle=True)
+# Create DataLoaders for each dataset
+train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+val_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
 # Early stopping parameters
-patience = 5
+patience = 15
 best_val_loss = float('inf')
 best_model_path = None
 epochs_without_improvement = 0
@@ -138,13 +193,14 @@ with torch.no_grad():
         _, predicted = torch.max(outputs, 1)  # Get the predicted class index
         c = (predicted == labels).squeeze()
         for i in range(len(labels)):
-            label = labels[i]
-            class_correct[label] += c[i].item()
-            class_total[label] += 1
+            label = labels[i].item()  # Get the actual label as an integer
+            class_correct[label] += c[i].item()  # Increment correct count if prediction was right
+            class_total[label] += 1  # Always increment total count
 
 # Print accuracy for each class
 for i in range(NUM_CLASSES):
     if class_total[i] > 0:
-        print(f'Accuracy of class {i + 1}: {100 * class_correct[i] / class_total[i]}%')
+        print(f'Accuracy of class {i}: {100 * class_correct[i] / class_total[i]:.2f}%')
     else:
-        print(f'Accuracy of class {i + 1}: N/A (no samples)')
+        print(f'Accuracy of class {i}: N/A (no samples)')
+
