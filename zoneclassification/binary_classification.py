@@ -2,6 +2,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim import lr_scheduler
 from torch.utils.data import Subset, DataLoader
 from sklearn.model_selection import train_test_split
 import pickle
@@ -51,81 +52,78 @@ class CNNBiLSTMWithAttention(nn.Module):
         x = self.sigmoid(x)  # Apply sigmoid activation
         return x
 
-class CNNBiLSTM(nn.Module):
-    def __init__(self, dropout_rate=0.2, l2_reg=0.001):
-        super(CNNBiLSTM, self).__init__()
-        self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=12)
-        self.conv2 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=48)
-        self.batch_norm1 = nn.BatchNorm1d(32)
-        self.batch_norm2 = nn.BatchNorm1d(32)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(p=dropout_rate)
-        self.lstm = nn.LSTM(input_size=32, hidden_size=16, num_layers=1, batch_first=True, bidirectional=True)
-        self.fc = nn.Linear(32, 1)  # Adjusted input size for concatenation
-        self.sigmoid = nn.Sigmoid()
-
-        # Add L2 regularization to the linear layer
-        self.fc.weight_regularizer = torch.nn.Parameter(torch.randn(32, 1) * l2_reg)
-
-    def forward(self, x):
-        # Apply first CNN layer
-        x1 = self.conv1(x)
-        x1 = self.batch_norm1(x1)  # Apply batch normalization
-        x1 = self.relu(x1)
-        x1 = self.dropout(x1)
-
-        # Apply second CNN layer
-        x2 = self.conv2(x)
-        x2 = self.batch_norm2(x2)  # Apply batch normalization
-        x2 = self.relu(x2)
-        x2 = self.dropout(x2)
-
-        # Concatenate the outputs of both CNN layers
-        x_concat = torch.cat((x1, x2), dim=2)
-
-        # Reshape for LSTM input
-        x_concat = x_concat.permute(0, 2, 1)
-
-        # Apply LSTM
-        output, _ = self.lstm(x_concat)
-
-        # Use only the last output of LSTM
-        x = output[:, -1, :]
-
-        # Apply fully connected layer and sigmoid activation
-        x = self.fc(x)
-        x = self.sigmoid(x)
-
-        return x
-
 # class CNNBiLSTM(nn.Module):
 #     def __init__(self, dropout_rate=0.2, l2_reg=0.001):
 #         super(CNNBiLSTM, self).__init__()
-#         self.conv1 = nn.Conv1d(in_channels=1, out_channels=64, kernel_size=5)
-#         self.batch_norm = nn.BatchNorm1d(64)  # Batch normalization layer
+#         self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=12)
+#         self.conv2 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=48)
+#         self.batch_norm1 = nn.BatchNorm1d(32)
+#         self.batch_norm2 = nn.BatchNorm1d(32)
 #         self.relu = nn.ReLU()
 #         self.dropout = nn.Dropout(p=dropout_rate)
-#         self.lstm = nn.LSTM(input_size=64, hidden_size=16, num_layers=1, batch_first=True, bidirectional=True)
-#         self.fc = nn.Linear(32, 1)  # Output size 1 for binary classification
+#         self.lstm = nn.LSTM(input_size=32, hidden_size=16, num_layers=1, batch_first=True, bidirectional=True)
+#         self.fc = nn.Linear(32, 1)  # Adjusted input size for concatenation
 #         self.sigmoid = nn.Sigmoid()
 #
 #         # Add L2 regularization to the linear layer
-#         self.fc.weight_regularizer = torch.nn.Parameter(torch.randn(64, 1) * l2_reg)
+#         self.fc.weight_regularizer = torch.nn.Parameter(torch.randn(32, 1) * l2_reg)
 #
 #     def forward(self, x):
-#         x = self.conv1(x)
-#         x = self.batch_norm(x)  # Apply batch normalization
-#         x = self.relu(x)
-#         x = self.dropout(x)
-#         x = x.permute(0, 2, 1)  # Reshape for LSTM input
-#         output, _ = self.lstm(x)
-#         x = output[:, -1, :]  # Use only the last output of LSTM
+#         # Apply first CNN layer
+#         x1 = self.conv1(x)
+#         x1 = self.batch_norm1(x1)  # Apply batch normalization
+#         x1 = self.relu(x1)
+#         x1 = self.dropout(x1)
+#
+#         # Apply second CNN layer
+#         x2 = self.conv2(x)
+#         x2 = self.batch_norm2(x2)  # Apply batch normalization
+#         x2 = self.relu(x2)
+#         x2 = self.dropout(x2)
+#
+#         # Concatenate the outputs of both CNN layers
+#         x_concat = torch.cat((x1, x2), dim=2)
+#
+#         # Reshape for LSTM input
+#         x_concat = x_concat.permute(0, 2, 1)
+#
+#         # Apply LSTM
+#         output, _ = self.lstm(x_concat)
+#
+#         # Use only the last output of LSTM
+#         x = output[:, -1, :]
+#
+#         # Apply fully connected layer and sigmoid activation
 #         x = self.fc(x)
-#         x = self.sigmoid(x)  # Apply sigmoid activation
+#         x = self.sigmoid(x)
+#
 #         return x
 
+class CNNBiLSTM(nn.Module):
+    def __init__(self, dropout_rate=0.2):
+        super(CNNBiLSTM, self).__init__()
+        self.conv1 = nn.Conv1d(in_channels=1, out_channels=64, kernel_size=3)
+        #self.batch_norm = nn.BatchNorm1d(64)  # Batch normalization layer
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(p=dropout_rate)
+        self.lstm = nn.LSTM(input_size=64, hidden_size=32, num_layers=1, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(64, 1)  # Output size 1 for binary classification
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        x = self.conv1(x)
+        #x = self.batch_norm(x)  # Apply batch normalization
+        x = self.relu(x)
+        x = self.dropout(x)
+        x = x.permute(0, 2, 1)  # Reshape for LSTM input
+        output, _ = self.lstm(x)
+        x = output[:, -1, :]  # Use only the last output of LSTM
+        x = self.fc(x)
+        x = self.sigmoid(x)  # Apply sigmoid activation
+        return x
+
 class CNNTransformer(nn.Module):
-    def __init__(self, d_model=16, nhead=2, num_layers=1, dropout_rate=0.5, l2_reg=0.001):
+    def __init__(self, d_model=32, nhead=4, num_layers=1, dropout_rate=0.5, l2_reg=0.001):
         super(CNNTransformer, self).__init__()
         self.conv1 = nn.Conv1d(in_channels=1, out_channels=d_model, kernel_size=3)
         self.batch_norm = nn.BatchNorm1d(d_model)  # Batch normalization layer
@@ -151,30 +149,30 @@ class CNNTransformer(nn.Module):
         x = self.sigmoid(x)  # Apply sigmoid activation
         return x
 
-# Initialize model, loss function, and optimizer
 
-model = CNNBiLSTM().cuda()  # Move model to GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = CNNBiLSTM().to(device)
 criterion = nn.BCELoss()  # Binary Cross Entropy Loss for binary classification
 optimizer = optim.Adam(model.parameters(), lr=0.001)
+scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.01)  # Adjust LR every 5 epochs by multiplying with gamma
 
 # Load DataLoader
-with open('dataset/_15min_dataloader.pkl', 'rb') as f:
+with open('dataset/_5min_dataloader.pkl', 'rb') as f:
     loaded_dataloader = pickle.load(f)
 
 # Generate indices for train-validation split
 indices = list(range(len(loaded_dataloader.dataset)))
 train_indices, val_indices = train_test_split(indices, test_size=0.1, random_state=42)
-
 # Create Subset objects for training, validation, and testing sets
 train_dataset = Subset(loaded_dataloader.dataset, train_indices)
 val_dataset = Subset(loaded_dataloader.dataset, val_indices)
 
 # Create DataLoader for training, validation, and testing sets with batch size 32
-train_dataloader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-val_dataloader = DataLoader(val_dataset, batch_size=16, shuffle=True)
+train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=True)
 
 # Early stopping parameters
-patience = 10
+patience = 100
 best_val_loss = float('inf')
 best_model_path = None
 epochs_without_improvement = 0
@@ -195,7 +193,7 @@ for epoch in range(epochs):
     model.train()
     running_loss = 0.0
     for sequences, labels in train_dataloader:
-        sequences, labels = sequences.cuda(), labels.cuda()  # Move data to GPU
+        sequences, labels = sequences.to(device), labels.to(device)  # Move data to GPU
         optimizer.zero_grad()
         outputs = model(sequences.unsqueeze(1))  # Add channel dimension
         loss = criterion(outputs.squeeze(), labels.float())  # Squeeze to remove extra dimension, convert labels to float
@@ -211,7 +209,7 @@ for epoch in range(epochs):
     val_loss = 0.0
     with torch.no_grad():
         for val_sequences, val_labels in val_dataloader:
-            val_sequences, val_labels = val_sequences.cuda(), val_labels.cuda()
+            val_sequences, val_labels = val_sequences.to(device), val_labels.to(device)
             val_outputs = model(val_sequences.unsqueeze(1))
             val_loss += criterion(val_outputs.squeeze(), val_labels.float()).item()
     val_loss /= len(val_dataloader)
@@ -252,7 +250,7 @@ correct = 0
 total = 0
 with torch.no_grad():
     for sequences, labels in val_dataloader:
-        sequences, labels = sequences.cuda(), labels.cuda()  # Move data to GPU
+        sequences, labels = sequences.to(device), labels.to(device)  # Move data to GPU
         outputs = model(sequences.unsqueeze(1))  # Add channel dimension
         predicted = (outputs > 0.5).float()  # Apply threshold 0.5 for binary classification
         total += labels.size(0)
