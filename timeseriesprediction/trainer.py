@@ -10,7 +10,7 @@ import torch.optim as optim
 from MetricTracker import MetricTracker
 from EarlyStopping import EarlyStopping
 from models.get_model import get_model
-from metrics import smape, mae, rmse
+from metrics import smape, mae, rmse, mse, mape
 from dataset import TimeSeriesDataset
 
 
@@ -177,10 +177,13 @@ class Trainer:
         return_dict['ys'] = ys_denorm
         return_dict['rmse'] = rmse(preds, ys, axis=None)
         return_dict['mae'] = mae(preds, ys, axis=None)
+        return_dict['mape'] = mape(preds, ys, axis=None)
         return_dict['smape'] = smape(preds, ys, axis=None)
         return_dict['rmse_components'] = rmse(preds, ys, axis=0)
         return_dict['mae_components'] = mae(preds, ys, axis=0)
+        return_dict['mape_components'] = mape(preds, ys, axis=0)
         return_dict['smape_components'] = smape(preds, ys, axis=0)
+        return_dict['loss_components'] = mse(preds, ys, axis=0)
         return_dict['loss'] = loss
         return return_dict
 

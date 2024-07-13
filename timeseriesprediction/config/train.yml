@@ -1,38 +1,260 @@
-dataset_path: ./datasets/EURJPY_Hourly.csv
+dataset_path: ./datasets/EURUSD_HourlyIndicators&Fundamental.csv
 plots_directory: ./plot
 ts_plot_filename: Figure.png
 tmp_directory: ./tmp
 save_model_path: ./model_files/model.pt
 datetime_column: date
 target_columns:
-  - High
-  - Volume
-input_columns:
-  - High
-  - Low
   - Close
+  - High
+input_columns:
+  - Close
+  - High
+  - Open
+  - Low
   - Volume
+#  - FI5
+#  - C%
+#  - NVI
+#  - MFI
+#  - EMA10
+#  - MACD
+#  - RSI10
+#  - CCI
+#  - H-L
+#  - H-Cp
+#  - ROC
+#  - Williams%R
+#  - OBV
+#  - ADX14
+#  - KST
+#  - KST9
+#  - TR
+#  - BBH
+#  - RSI14
+#  - V%
+#  - AO
+#  - BBL
+#  - FI
+#  - SEMV
+#  - TSI
+#  - DPO
+#  - ADX7
+#  - SMA5
+#  - SMA10
+#  - SMA20
+#  - EMA6
+#  - EMA14
+#  - L-Cp
+#  - ATR
+#  - USD_GDPA_Dev
+#  - USD_S&PGSPMI_Dev
+#  - USD_ISMMPMI_Dev
+#  - USD_FOM_Dev
+#  - USD_RetS_Dev
+#  - USD_RetSxA_Dev
+#  - USD_ISMSPMI_Dev
+#  - USD_PhFMS_Dev
+#  - USD_HS_Dev
+#  - USD_CPIM_Dev
+#  - USD_CPIY_Dev
+#  - USD_CPIexFEM_Dev
+#  - USD_CPIexFEY_Dev
+#  - USD_PPIM_Dev
+#  - USD_PPIY_Dev
+#  - USD_PPIexFEM_Dev
+#  - USD_NFP_Dev
+#  - USD_NYESMI_Dev
+#  - USD_IPM_Dev
+#  - EUR_GERRetSM_Dev
+#  - EUR_GERHCOBSPMI_Dev
+#  - EUR_GERHCOBMPMI_Dev
+#  - EUR_GERHCOBCPMI_Dev
+#  - EUR_EURZEWSES_Dev
+#  - EUR_GERZEWSES_Dev
+#  - EUR_GERIFOBC_Dev
+#  - EUR_GERIFOCA_Dev
+#  - EUR_GERIFOE_Dev
+#  - EUR_GERFOsaM_Dev
+###########
+#   EUR_GERTBsa_Dev
+ ##  - EUR_GERRetSM_Dev
+#  - EUR_GERRetSY_Dev
+#  - EUR_EURRetSM_Dev
+#  - EUR_EURRetSY_Dev
+#  - EUR_EURCConf_Dev
+#  - EUR_GERGfkCCS_Dev
+#  - EUR_EURHCOBSPMI_Dev
+##  - EUR_GERHCOBSPMI_Dev
+#  - EUR_EURHCOBMPMI_Dev
+##  - EUR_GERHCOBMPMI_Dev
+#  - EUR_EURHCOBCPMI_Dev
+##  - EUR_GERHCOBCPMI_Dev
+##  - EUR_EURZEWSES_Dev
+##  - EUR_GERZEWSES_Dev
+#  - EUR_GERZEWSCS_Dev
+##  - EUR_GERIFOBC_Dev
+##  - EUR_GERIFOCA_Dev
+##  - EUR_GERIFOE_Dev
+#  - EUR_EURGDPsaY_Dev
+#  - EUR_GERGDPQ_Dev
+#  - EUR_GERGDPY_Dev
+#  - EUR_EURSIC_Dev
+#  - EUR_GERFOsaM_Dev
+#  - EUR_GERIPsaM_Dev
+#  - EUR_EURIPsaM_Dev
+#  - EUR_EURPPIM_Dev
+#  - EUR_GERPPIM_Dev
+#  - EUR_EURPPIY_Dev
+#  - EUR_GERPPIY_Dev
+#  - EUR_EURUnEmpR_Dev
+#  - EUR_GERUnEmpCh_Dev
+#  - EUR_EURESI_Dev
+##  - USD_GDPA_Dev
+#  - USD_GDPPI_Dev
+#  - USD_CPCE_Dev
+#  - USD_PCEP_Dev
+#  - USD_PS_Dev
+#  - USD_PI_Dev
+#  - USD_ChPMI_Dev
+#  - USD_MCSI_Dev
+#  - USD_S&PGMPMI_Dev
+##  - USD_S&PGSPMI_Dev
+##  - USD_ISMMPMI_Dev
+#  - USD_ISMMPP_Dev
+#  - USD_ADPECH_Dev
+#  - USD_NFProd_Dev
+#  - USD_ULC_Dev
+##  - USD_FOM_Dev
+#  - USD_GSTB_Dev
+##  - USD_RetS_Dev
+##  - USD_RetSxA_Dev
+##  - USD_ISMSPMI_Dev
+#  - USD_IJC_Dev
+##  - USD_PhFMS_Dev
+#  - USD_DGO_Dev
+#  - USD_DGOexT_Dev *
+#  - USD_BP_Dev
+##  - USD_HS_Dev
+#  - USD_NHS_Dev
+#  - USD_PHS_Dev
+##  - USD_CPIM_Dev
+##  - USD_CPIY_Dev
+ ## - USD_CPIexFEM_Dev
+##  - USD_CPIexFEY_Dev
+#  - USD_PPIM_Dev
+##  - USD_PPIY_Dev
+#  - USD_PPIexFEM_Dev
+#  - USD_PPIexFEY_Dev
+#  - USD_HPI_Dev
+#  - USD_S&PCSHHPI_Dev
+##  - USD_NFP_Dev
+#  - USD_UnEmpR_Dev
+#  - USD_AHEM_Dev
+#  - USD_MBS_Dev
+#  - USD_JOLTSJO_Dev
+##  - USD_NYESMI_Dev
+##  - USD_IPM_Dev
+#  - USD_EHSCh_Dev
+#  - MA
+#  - EMA
+#  - MACD
+#  - ROC
+#  - Momentum
+#  - RSI
+#  - BBM
+#  - BBH
+#  - BBL
+#  - CCI
+#  - OBV
+#  - Williams
+#  - ADI
+#  - ATR
+#  - STCH%K
+#  - STCH%D
+#####
+#  - SD
+#  - FI5
+#  - C%
+#  - NVI
+#  - MFI
+#  - EMA10
+#  - MACD
+#  - RSI10
+#  - CCI
+#  - H-L
+#  - H-Cp
+#  - ROC
+#  - Williams%R
+#  - OBV
+#####
+#  - ADX14
+#  - KST
+#  - KST9
+#  - TR
+#  - BBH
+#  - RSI14
+#  - V%
+######
+#  - AO
+#  - BBL
+#  - FI
+#  - SEMV
+#  - TSI
+#  - DPO
+#  - ADX7
+#  - SMA5
+#  - SMA10
+#  - SMA20
+#  - EMA6
+#  - EMA14
+#  - L-Cp
+#  - ATR
 time_freq: 1H
-seq_len_in: 10
-seq_len_out: 5
-seq_len_dec: 4
+seq_len_in: 96
+seq_len_out: 192
+seq_len_dec: 48
 batch_size: 256
-lr: 3e-3
-#model: linear
-#hidden_size: 32
+lr: 1e-4
+model: linear
 #model: lstm
-#hidden_size: 32
+#hidden_size: 128
 #num_layers: 2
-model: transformer
-dim_val: 64
-n_heads: 1
-n_encoder_layers: 1
-n_decoder_layers: 1
+#model: transformer
+#dim_val: 64
+#n_heads: 2
+#n_encoder_layers: 1
+#n_decoder_layers: 1
+#model: dlinear
+#individual: False
+#channel : 1
+##model: meaformer
+#hidden_size: 512
+#S : 512
+#n_encoder_layers: 1
+#n_decoder_layers: 1
+#model: dmeaformer
+#hidden_size: 512
+#S : 512
+#n_encoder_layers: 1
+#n_decoder_layers: 1
+#model: tcdformer
+#n_encoder_layers: 1
+#n_decoder_layers: 1
+#version: Fourier   #Wavelet, Fourier, Time
+#moving_avg: 24
+#dropout: 0.05
+#d_model: 64
+#modes: 16
+#activation: softmax
+#window_size: 5
+#hidden_size: 10
 DEVICE: cuda:0
 train_portion: 0.6
 early_stopping_patience: 30
-num_epochs: 2
+num_epochs: 100
 teacher_forcing: 0.5
 print_interval: 1
 displaying_progress_bar: True
+show_anomalies_in_plot: False
 norm_type: min_max
