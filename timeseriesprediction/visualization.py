@@ -17,24 +17,23 @@ def visualize_ts(trainer, show_plot=False, save_plot=False, i_component=-1, y_id
         num_components = trainer.evaluate_test['preds'].shape[1]
         pred_values_test = TimeSeries.from_times_and_values(
             pd.DatetimeIndex(trainer.data_val[trainer.params['seq_len_in']:-num_components + 1]['ds'].values,
-                             freq=trainer.params['time_freq']),
-
-            preds_test[:, i_component, y_id])
+                             freq=trainer.params['time_freq']), preds_test[:, i_component, y_id])
         actual_values_test = trainer.data_val[trainer.params['seq_len_in']:]
 
     fig = go.Figure()
 
-    if trainer.ts_ds.mode == 'train':
-        fig.add_trace(go.Scatter(
-            x=trainer.data_train['ds'],
-            y=trainer.data_train['y_' + str(y_id)],
-            name='actual normal'))
-    elif trainer.ts_ds.mode == 'test':
-        fig.add_trace(go.Scatter(
-            x=trainer.data_val['ds'],
-            y=trainer.data_val['y_' + str(y_id)],
-            name='actual normal'))
-    elif trainer.ts_ds.mode == 'train_test':
+    # if trainer.ts_ds.mode == 'train':
+    #     fig.add_trace(go.Scatter(
+    #         x=trainer.data_train['ds'],
+    #         y=trainer.data_train['y_' + str(y_id)],
+    #         name='actual normal'))
+    # elif trainer.ts_ds.mode == 'test':
+    #     fig.add_trace(go.Scatter(
+    #         x=trainer.data_val['ds'],
+    #         y=trainer.data_val['y_' + str(y_id)],
+    #         name='actual normal'))
+
+    if trainer.ts_ds.mode == 'train_test':
         fig.add_trace(go.Scatter(
             x=pd.concat([trainer.data_train, trainer.data_val[trainer.params['seq_len_in']:-num_components + 1]])['ds'].values,
             y=pd.concat([trainer.data_train, trainer.data_val[trainer.params['seq_len_in']:-num_components + 1]])['y_' + str(y_id)].values,

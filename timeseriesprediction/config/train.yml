@@ -31,7 +31,7 @@ n_decoder_layers: 1
 DEVICE: cuda:0
 train_portion: 0.6
 early_stopping_patience: 30
-num_epochs: 2
+num_epochs: 1
 teacher_forcing: 0.5
 print_interval: 1
 displaying_progress_bar: True
