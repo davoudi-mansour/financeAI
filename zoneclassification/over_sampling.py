@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from torch.utils.data import Dataset, DataLoader
+from sklearn.utils import resample
 
 
 def min_max_normalize(data):
@@ -16,36 +17,77 @@ class FinancialTimeSeriesDataset(Dataset):
         self.dataframe = dataframe
         self.window_length = window_length
         self.indexes = indexes if indexes is not None else range(len(dataframe))
+        self.samples, self.labels = self.create_samples_and_labels()
 
     def __len__(self):
-        return len(self.indexes)
+        return len(self.labels)
 
     def __getitem__(self, idx):
-        idx = self.indexes[idx]
-        current_candle = self.dataframe.iloc[idx]
-        prev_candles = self.dataframe.iloc[idx - self.window_length:idx]
-        next_candles = self.dataframe.iloc[idx + 1:idx + 1 + self.window_length]
+        sample = self.samples[idx]
+        label = self.labels[idx]
+        return torch.tensor(sample, dtype=torch.float32), torch.tensor(label, dtype=torch.float32)
 
-        if current_candle['Low'] < prev_candles['Low'].min() and current_candle['Low'] < next_candles['Low'].min()  and (
-                next_candles['High'] >= current_candle['Low'] * 1.01).any():
+    def create_samples_and_labels(self):
+        samples = []
+        labels = []
+        for idx in self.indexes:
+            current_candle = self.dataframe.iloc[idx]
+            prev_candles = self.dataframe.iloc[idx - self.window_length:idx]
+            next_candles = self.dataframe.iloc[idx + 1:idx + 1 + self.window_length]
+
             start_idx = idx - self.window_length
             end_idx = idx + self.window_length + 1
             sample = self.dataframe.iloc[start_idx:end_idx].values.astype(np.float32)
-            label = 0.0
-            return torch.tensor(sample), torch.tensor(label)
 
-        elif current_candle['High'] > prev_candles['High'].max() and current_candle['High'] > next_candles['High'].max() and (next_candles['Low'] <= current_candle['High'] * 0.99).any():
-            start_idx = idx - self.window_length
-            end_idx = idx + 1 + self.window_length
-            sample = self.dataframe.iloc[start_idx:end_idx].values.astype(np.float32)
-            label = 1.0
-            return torch.tensor(sample), torch.tensor(label)
-        else:
-            start_idx = idx - self.window_length
-            end_idx = idx + 1 + self.window_length
-            sample = self.dataframe.iloc[start_idx:end_idx].values.astype(np.float32)
-            label = 2.0
-            return torch.tensor(sample), torch.tensor(label)
+            if current_candle['Low'] < prev_candles['Low'].min() and current_candle['Low'] < next_candles['Low'].min() and (
+                    next_candles['High'] >= current_candle['Low'] * 1.01).any():
+                label = 0.0
+            elif current_candle['High'] > prev_candles['High'].max() and current_candle['High'] > next_candles['High'].max() and (
+                    next_candles['Low'] <= current_candle['High'] * 0.99).any():
+                label = 1.0
+            else:
+                label = 2.0
+
+            samples.append(sample)
+            labels.append(label)
+
+        samples = np.array(samples)
+        labels = np.array(labels)
+
+        # Resample to balance the dataset
+        samples, labels = self.resample_classes(samples, labels, classes=[0.0, 1.0])
+
+        return samples, labels
+
+    def resample_classes(self, samples, labels, classes):
+        resampled_samples = []
+        resampled_labels = []
+
+        for cls in classes:
+            class_samples = samples[labels == cls]
+            class_labels = labels[labels == cls]
+            resampled_class_samples, resampled_class_labels = resample(
+                class_samples,
+                class_labels,
+                replace=True,
+                n_samples=len(samples[labels == 2.0]),  # Assuming class 2 is the majority class
+                random_state=42
+            )
+            resampled_samples.append(resampled_class_samples)
+            resampled_labels.append(resampled_class_labels)
+
+        # Combine resampled classes with the original majority class
+        majority_samples = samples[labels == 2.0]
+        majority_labels = labels[labels == 2.0]
+
+        resampled_samples.append(majority_samples)
+        resampled_labels.append(majority_labels)
+
+        resampled_samples = np.vstack(resampled_samples)
+        resampled_labels = np.hstack(resampled_labels)
+
+        return resampled_samples, resampled_labels
+
 
 def draw_candle_sample(dataloader, idx):
     dataset = dataloader.dataset
@@ -87,7 +129,6 @@ def get_indices_with_label_zero(dataloader):
     indices_with_label_zero = []
     for idx, (sample, label) in enumerate(dataloader.dataset):
         if label.item() == 0.0:
-            print(idx)
             indices_with_label_zero.append(dataloader.dataset.indexes[idx])
     return indices_with_label_zero
 
@@ -96,7 +137,7 @@ def get_indices_with_label_zero(dataloader):
 all_samples = pd.read_csv('data/BTCUSD_Hourly_Ask_2022.01.01_2024.07.01.csv')
 all_samples.drop(['Time (EET)'], inplace=True, axis=1)
 
-window_length = 8
+window_length = 16
 total_sequences = all_samples.shape[0]
 
 train_size = int(total_sequences * 0.8)
