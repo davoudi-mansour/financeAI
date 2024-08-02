@@ -363,6 +363,6 @@ print(f'Test Accuracy: {accuracy:.2f}%')
 print(f'TP: {TP}, TN: {TN}, FP: {FP}, FN: {FN}')
 
 # Print FP samples' reconstruction errors
-print("Reconstruction errors for FP samples:")
-for error in fp_reconstruction_errors:
-    print(error)
+# print("Reconstruction errors for FP samples:")
+# for error in fp_reconstruction_errors:
+#     print(error)
