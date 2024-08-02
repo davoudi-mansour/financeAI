@@ -1,11 +1,9 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from dataset import get_dataloaders
-from model import get_model
 
-class FineTuner:
-    def __init__(self, model, train_dataloader, val_dataloader, device, num_epochs=50, learning_rate=0.0001, patience=15):
+class Trainer:
+    def __init__(self, model, train_dataloader, val_dataloader, device, num_epochs=100, learning_rate=0.001, patience=30):
         self.model = model
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
@@ -17,9 +15,8 @@ class FineTuner:
         self.criterion = nn.MSELoss()
         self.best_val_loss = float('inf')
         self.epochs_no_improve = 0
-        self.clip_value = 1.0  # Value for clipping gradients
 
-    def fine_tune(self):
+    def train(self):
         for epoch in range(self.num_epochs):
             self.model.train()
             train_loss = 0
@@ -31,13 +28,10 @@ class FineTuner:
                 samples = samples[mask]
                 if len(samples) == 0:
                     continue
-
                 self.optimizer.zero_grad()
                 reconstructed, latent = self.model(samples)
                 loss = self.criterion(reconstructed, samples)
-
                 loss.backward()
-                nn.utils.clip_grad_norm_(self.model.parameters(), self.clip_value)
                 self.optimizer.step()
                 train_loss += loss.item()
 

@@ -152,7 +152,7 @@ class FinancialTimeSeriesDataset(Dataset):
                 label = 1.0
             elif current_candle['High'] > prev_candles['High'].max() and current_candle['High'] > next_candles['High'].max() and (
                 next_candles['Low'] <= current_candle['High'] * 0.99).any():
-                label = 0.0
+                label = 1.0
             else:
                 label = 0.0
 
@@ -175,7 +175,6 @@ def get_dataloaders(file_path, window_length=16, batch_size=128):
     total_sequences = all_samples.shape[0]
     train_size = int(total_sequences * 0.8)
     val_size = int(total_sequences * 0.1)
-    test_size = total_sequences - train_size - val_size
 
     indices = list(range(32, len(all_samples) - 2 * window_length))
     train_indices = indices[:train_size]

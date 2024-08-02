@@ -43,8 +43,9 @@ class Tester:
         accuracy = 100 * correct / total
         print(f'Test Accuracy: {accuracy:.2f}%')
         print(f'TP: {TP}, TN: {TN}, FP: {FP}, FN: {FN}')
-
-        # Print FP samples' reconstruction errors
-        # print("Reconstruction errors for FP samples:")
-        # for error in fp_reconstruction_errors:
-        #     print(error)
+        print("Reconstruction errors for FP samples:")
+        counter = 0
+        for error in fp_reconstruction_errors:
+            if error > 1.5 * self.threshold:
+                counter+=1
+        print(counter)

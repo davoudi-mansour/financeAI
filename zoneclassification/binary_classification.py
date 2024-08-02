@@ -206,7 +206,7 @@ class LSTMClassifier(nn.Module):
 
 
 # Load data
-all_samples = pd.read_csv('data/BTCUSD_Hourly_Ask_2022.01.01_2024.07.01.csv')
+all_samples = pd.read_csv('AutoEncoder/data/BTCUSD_Hourly_Ask_2022.01.01_2024.07.01.csv')
 all_samples.drop(['Time (EET)'], inplace=True, axis=1)
 
 # Adding indicators and normalizing data

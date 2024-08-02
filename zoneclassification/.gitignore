@@ -1,5 +1,5 @@
-data
+AutoEncoder/data
 dataset
-saved_models
+AutoEncoder/saved_models
 results
 _pycache_

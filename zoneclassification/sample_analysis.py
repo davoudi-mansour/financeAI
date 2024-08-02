@@ -93,7 +93,7 @@ def get_indices_with_label_zero(dataloader):
 
 
 # Load data
-all_samples = pd.read_csv('data/BTCUSD_Hourly_Ask_2022.01.01_2024.07.01.csv')
+all_samples = pd.read_csv('AutoEncoder/data/BTCUSD_Hourly_Ask_2022.01.01_2024.07.01.csv')
 all_samples.drop(['Time (EET)'], inplace=True, axis=1)
 
 window_length = 8

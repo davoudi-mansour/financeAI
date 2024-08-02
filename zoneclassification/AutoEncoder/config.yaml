@@ -1,6 +1,5 @@
-data_paths:
-  train_val_test: data/BTCUSD_Hourly_Ask_2022.01.01_2024.07.01.csv
-  finetune: data/new_data.csv
+data:
+  data_path: data/ETHUSD_15 Mins_Bid_2019.11.01_2024.06.02.csv
 
 model_params:
   input_size: 19
@@ -8,12 +7,16 @@ model_params:
   num_layers: 2
 
 training_params:
-  num_epochs: 2
+  num_epochs: 100
   learning_rate: 0.001
-  patience: 30
+  patience: 20
+  batch_size: 128
+
+testing_params:
   batch_size: 128
 
 finetuning_params:
   num_epochs: 50
   learning_rate: 0.0001
   patience: 15
+  batch_size: 128
