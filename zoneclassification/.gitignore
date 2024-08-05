@@ -1,5 +1,7 @@
 AutoEncoder/data
+BinaryClassification/data
 dataset
 AutoEncoder/saved_models
 results
 _pycache_
+BinaryClassification/saved_models

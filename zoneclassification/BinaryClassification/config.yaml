@@ -1,0 +1,22 @@
+data:
+  data_path: data/BTCUSD_15 Mins_Bid_2019.11.01_2024.06.02.csv
+
+model_params:
+  input_size: 19
+  hidden_size: 19
+  num_layers: 2
+
+training_params:
+  num_epochs: 100
+  learning_rate: 0.001
+  patience: 30
+  batch_size: 128
+
+testing_params:
+  batch_size: 128
+
+finetuning_params:
+  num_epochs: 50
+  learning_rate: 0.0001
+  patience: 15
+  batch_size: 128
