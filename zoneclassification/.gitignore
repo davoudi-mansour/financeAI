@@ -5,3 +5,6 @@ AutoEncoder/saved_models
 results
 _pycache_
 BinaryClassification/saved_models
+Backtesting/data
+Backtesting/saved_models
+Backtesting/result

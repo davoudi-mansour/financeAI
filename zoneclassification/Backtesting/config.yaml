@@ -13,7 +13,7 @@ training_params:
   batch_size: 64
 
 testing_params:
-  batch_size: 128
+  batch_size: 1
 
 finetuning_params:
   num_epochs: 50

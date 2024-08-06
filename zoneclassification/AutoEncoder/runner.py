@@ -1,6 +1,6 @@
 import torch
 from dataset import get_dataloaders
-from model import get_model
+from model import LSTMAutoencoder
 from train import Trainer
 from test import Tester
 from finetune import FineTuner
@@ -26,7 +26,7 @@ def train_model(config, device):
     train_dataloader, val_dataloader, _ = get_dataloaders(config['data']['data_path'], batch_size=batch_size)
 
     # Initialize model
-    model = get_model(input_size, hidden_size, num_layers).to(device)
+    model = LSTMAutoencoder(input_size, hidden_size, num_layers).to(device)
 
     # Train model
     trainer = Trainer(model, train_dataloader, val_dataloader, device, num_epochs, learning_rate, patience)
@@ -69,6 +69,10 @@ def test_model(config, device):
     threshold = np.percentile(val_errors, 70)
     print(f"Computed Threshold: {threshold}")
 
+    # Write the threshold value to a file
+    with open('threshold.value', 'w') as f:
+        f.write(str(threshold))
+
     # Test the model
     tester = Tester(model, test_dataloader, device, threshold)
     tester.test()
@@ -88,7 +92,7 @@ def finetune_model(config, device):
     train_dataloader, val_dataloader, _ = get_dataloaders(finetune_data_path, batch_size=batch_size)
 
     # Initialize model
-    model = get_model(input_size, hidden_size, num_layers).to(device)
+    model = LSTMAutoencoder(input_size, hidden_size, num_layers).to(device)
 
     # Load the best model
     model.load_state_dict(torch.load('saved_models/best_autoencoder.pth'))
