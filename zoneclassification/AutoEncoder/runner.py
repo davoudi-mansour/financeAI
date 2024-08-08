@@ -43,7 +43,7 @@ def test_model(config, device):
     _, val_dataloader, test_dataloader = get_dataloaders(config['data']['data_path'], batch_size=batch_size)
 
     # Initialize model
-    model = get_model(input_size, hidden_size, num_layers).to(device)
+    model = LSTMAutoencoder(input_size, hidden_size, num_layers).to(device)
 
     # Load the best model
     model.load_state_dict(torch.load('saved_models/best_autoencoder.pth'))

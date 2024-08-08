@@ -23,6 +23,3 @@ class LSTMAutoencoder(nn.Module):
         out, _ = self.decoder(latent_repeated, (h_n, c_n))
 
         return out, latent
-
-def get_model(input_size, hidden_size, num_layers=2):
-    return LSTMAutoencoder(input_size, hidden_size, num_layers)

@@ -1,35 +1,10 @@
-import backtrader as bt
 from dataset import get_dataloaders
 import yaml
 import torch
 from autoencoder_model import LSTMAutoencoder
 from lstm_model import LSTMClassifier
 import pandas as pd
-import numpy as np
-
-class CustomStrategy(bt.SignalStrategy):
-    def __init__(self):
-        self.dataclose = self.datas[0].close
-        self.last_action = None
-        self.buy_price = None
-
-    def next(self):
-        current_signal = self.data.signal[0]
-
-        if current_signal == 1 and (self.last_action is None or self.last_action == 'sell'):
-            self.buy()
-            self.last_action = 'buy'
-            self.buy_price = self.dataclose[0]
-        elif current_signal == -1 and self.last_action == 'buy' and self.dataclose[0] > self.buy_price:
-            self.sell()
-            self.last_action = 'sell'
-            self.buy_price = None
-
-class CustomPandasData(bt.feeds.PandasData):
-    lines = ('signal',)
-    params = (
-        ('signal', -1),
-    )
+import plotly.graph_objects as go
 
 def load_config(config_path):
     with open(config_path, 'r') as f:
@@ -41,6 +16,7 @@ def test_model(config, device):
     hidden_size = config['model_params']['hidden_size']
     num_layers = config['model_params']['num_layers']
     batch_size = config['testing_params']['batch_size']
+    threshold = float(config['testing_params']['threshold'])
     window_length = 16
 
     test_dataloader = get_dataloaders(config['data']['data_path'], window_length, batch_size)
@@ -54,7 +30,6 @@ def test_model(config, device):
     autoencoder_model.eval()
     classifier_model.eval()
     predictions = []
-    threshold = 0.0005762064
     all_counter = 0
     buy_counter = 0
     sell_counter = 0
@@ -64,24 +39,22 @@ def test_model(config, device):
             samples = samples.to(device)
             reconstructed, _ = autoencoder_model(samples)
             reconstruction_error = torch.mean((reconstructed - samples) ** 2, dim=[1, 2]).cpu().item()
-            if reconstruction_error > 1.8 * threshold:
+            if reconstruction_error > 1.5 * threshold:
                 classifier_output = classifier_model(samples).cpu().item()
-                if classifier_output > 0.90:
+                if classifier_output > 0.99:
                     buy_counter += 1
                     predictions.append(1)
-                elif classifier_output < 0.10:
+                elif classifier_output < 0.01:
                     sell_counter += 1
                     predictions.append(-1)
                 else:
                     predictions.append(0)
             else:
                 predictions.append(0)
-        print(all_counter)
-        print(buy_counter)
-        print(sell_counter)
+
     return predictions
 
-def prepare_backtrader_data(config, predictions):
+def prepare_backtesting_data(config, predictions):
     data_path = config['data']['data_path']
     # Load data
     all_samples = pd.read_csv(data_path)
@@ -93,10 +66,6 @@ def prepare_backtrader_data(config, predictions):
     test_indices = indices[train_size + val_size:]
     test_data = all_samples.iloc[test_indices].copy()
     test_data.loc[:, 'signal'] = predictions
-    #test_data.set_index('Time (EET)', inplace=True)
-    #test_data.index = pd.to_datetime(test_data.index, format='%Y.%m.%d %H:%M:%S')
-    test_data.to_csv('output_result.csv', index=False)
-    exit()
     return test_data
 
 if __name__ == "__main__":
@@ -104,37 +73,41 @@ if __name__ == "__main__":
     config = load_config(config_path)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     predictions = test_model(config, device)
-    data = prepare_backtrader_data(config, predictions)
+    df = prepare_backtesting_data(config, predictions)
+    # Convert 'Time (EET)' to datetime
+    df['Time (EET)'] = pd.to_datetime(df['Time (EET)'], format='%Y.%m.%d %H:%M:%S')
 
-    # Convert the data into a format compatible with Backtrader
-    data_feed = CustomPandasData(dataname=data)
+    # Create the candlestick chart
+    fig = go.Figure(data=[go.Candlestick(x=df['Time (EET)'],
+                                         open=df['Open'],
+                                         high=df['High'],
+                                         low=df['Low'],
+                                         close=df['Close'],
+                                         name='Candlesticks')])
 
-    # Create a cerebro entity
-    cerebro = bt.Cerebro()
+    # Add blue arrows for buy signals (signal == 1) on the low of the candle
+    buy_signals = df[df['signal'] == 1]
+    fig.add_trace(go.Scatter(x=buy_signals['Time (EET)'],
+                             y=buy_signals['Low'],
+                             mode='text',
+                             text=['\u2191'] * len(buy_signals),
+                             textfont=dict(color='#3a7ca5', size=30),  # Increase the font size for thicker arrows
+                             name='Buy Signal'))
 
-    # Add the strategy
-    cerebro.addstrategy(CustomStrategy)
+    # Add yellow arrows for sell signals (signal == -1) on the high of the candle
+    sell_signals = df[df['signal'] == -1]
+    fig.add_trace(go.Scatter(x=sell_signals['Time (EET)'],
+                             y=sell_signals['High'],
+                             mode='text',
+                             text=['\u2193'] * len(sell_signals),
+                             textfont=dict(color='#fee440', size=30),  # Increase the font size for thicker arrows
+                             name='Sell Signal'))
 
-    # Add the Data Feed to Cerebro
-    cerebro.adddata(data_feed)
+    # Update layout
+    fig.update_layout(title='Bitcoin Candlestick Chart with Buy/Sell Signals',
+                      xaxis_title='Time (EET)',
+                      yaxis_title='Price (USD)',
+                      xaxis_rangeslider_visible=False)
 
-    # Set our desired cash start
-    cerebro.broker.setcash(10000.0)
-
-    # Add a FixedSize sizer according to the stake
-    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
-
-    # Set the commission
-    cerebro.broker.setcommission(commission=0.001)
-
-    # Print out the starting conditions
-    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
-    # Run over everything
-    cerebro.run()
-
-    # Print out the final result
-    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
-    # Plot the result
-    cerebro.plot()
+    # Show the plot
+    fig.show()
