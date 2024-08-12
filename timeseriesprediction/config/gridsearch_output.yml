@@ -1,8 +1,9 @@
-batch_size: 2
-hidden_size: 64
-lr: 0.01
-model: linear
-seq_len_dec: 1
-seq_len_in: 10
-seq_len_out: 1
+batch_size: 1024
+channel: 1
+individual: false
+lr: 0.001
+model: dlinear
+seq_len_dec: 24
+seq_len_in: 12
+seq_len_out: 192
 time_freq: 1H

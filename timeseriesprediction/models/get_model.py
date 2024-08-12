@@ -5,6 +5,10 @@ from . import TimeSeriesTransformer
 from . import MEAformer
 from . import DMEAformer
 from . import TCDformer
+from . import DEncoderDecoderLSTM
+from . import LSTM
+from . import LSTM_MLP
+from . import AttentionLSTM
 import sys
 import torch
 
@@ -31,8 +35,48 @@ def get_model(model_params=None):
     elif model_params['model'] == 'lstm':
         input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
         output_size = num_outputs
+        model = LSTM(input_size, hidden_size, output_size, num_layers, seq_len_in, seq_len_out)
+
+    elif model_params['model'] == 'lstm_enc_dec':
+        input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
+        output_size = num_outputs
         model = EncoderDecoderLSTM(input_size, hidden_size, output_size, num_layers, seq_len_in, seq_len_out,
                                    seq_len_dec, teacher_forcing)
+
+    elif model_params['model'] == 'dlstm_enc_dec':
+        input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
+        output_size = num_outputs
+        model = DEncoderDecoderLSTM(input_size, hidden_size, output_size, num_layers, seq_len_in, seq_len_out,
+                                   seq_len_dec, teacher_forcing)
+
+
+    elif model_params['model'] == 'lstm_mlp':
+        input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
+        output_size = num_outputs
+        n_decoder_layers = model_params['n_decoder_layers']
+        model = LSTM_MLP(input_size, hidden_size, output_size, num_layers, seq_len_in, seq_len_out, n_decoder_layers)
+
+    elif model_params['model'] == 'att_lstm_enc_dec':
+        input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
+        output_size = num_outputs
+        n_encoder_layers = model_params['n_encoder_layers']
+        dim_val = model_params['dim_val']
+        dim_feedforward_encoder= model_params['dim_val']
+        n_heads = model_params['n_heads']
+        model = AttentionLSTM(input_size=input_size,
+                              hidden_size=hidden_size,
+                              output_size=output_size,
+                              num_layers=num_layers,
+                              seq_len_in=seq_len_in,
+                              seq_len_out=seq_len_out,
+                              seq_len_dec=seq_len_dec,
+                              dim_val=dim_val,
+                              n_encoder_layers=n_encoder_layers,
+                              n_heads=n_heads,
+                              batch_first=False,
+                              dim_feedforward_encoder=dim_feedforward_encoder,
+                              teacher_forcing=teacher_forcing
+                              )
 
     elif model_params['model'] == 'transformer':
         ## Model parameters

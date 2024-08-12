@@ -5,3 +5,7 @@ from .transformer import TimeSeriesTransformer
 from .meaformer import MEAformer
 from .dmeaformer import DMEAformer
 from .tcdformer import TCDformer
+from .dlstm import DEncoderDecoderLSTM
+from .slstm import LSTM
+from .lstm_mlp import LSTM_MLP
+from .att_lstm import AttentionLSTM

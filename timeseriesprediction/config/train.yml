@@ -1,11 +1,12 @@
 dataset_path: ./datasets/EURUSD_HourlyIndicators&Fundamental.csv
+anomaly_dates_path: ./datasets/anomaly_dates.conf
 plots_directory: ./plot
 ts_plot_filename: Figure.png
 tmp_directory: ./tmp
 save_model_path: ./model_files/model.pt
 datetime_column: date
 target_columns:
-  - Close
+#  - Close
   - High
 input_columns:
   - Close
@@ -13,40 +14,40 @@ input_columns:
   - Open
   - Low
   - Volume
-#  - FI5
-#  - C%
-#  - NVI
-#  - MFI
-#  - EMA10
-#  - MACD
-#  - RSI10
-#  - CCI
-#  - H-L
-#  - H-Cp
-#  - ROC
-#  - Williams%R
-#  - OBV
-#  - ADX14
-#  - KST
-#  - KST9
-#  - TR
-#  - BBH
-#  - RSI14
-#  - V%
-#  - AO
-#  - BBL
-#  - FI
-#  - SEMV
-#  - TSI
-#  - DPO
-#  - ADX7
-#  - SMA5
-#  - SMA10
-#  - SMA20
-#  - EMA6
-#  - EMA14
-#  - L-Cp
-#  - ATR
+  - FI5
+  - C%
+  - NVI
+  - MFI
+  - EMA10
+  - MACD
+  - RSI10
+  - CCI
+  - H-L
+  - H-Cp
+  - ROC
+  - Williams%R
+  - OBV
+  - ADX14
+  - KST
+  - KST9
+  - TR
+  - BBH
+  - RSI14
+  - V%
+  - AO
+  - BBL
+  - FI
+  - SEMV
+  - TSI
+  - DPO
+  - ADX7
+  - SMA5
+  - SMA10
+  - SMA20
+  - EMA6
+  - EMA14
+  - L-Cp
+  - ATR
 #  - USD_GDPA_Dev
 #  - USD_S&PGSPMI_Dev
 #  - USD_ISMMPMI_Dev
@@ -214,20 +215,36 @@ time_freq: 1H
 seq_len_in: 96
 seq_len_out: 192
 seq_len_dec: 48
-batch_size: 256
-lr: 1e-4
-model: linear
+batch_size: 512
+lr: 1e-3
+#model: linear
+model: dlinear
+individual: False
+channel : 1
 #model: lstm
 #hidden_size: 128
 #num_layers: 2
+#model: lstm_enc_dec
+#hidden_size: 32
+#num_layers: 2
+#model: dlstm_enc_dec
+#hidden_size: 32
+#num_layers: 2
+#model: lstm_mlp
+#hidden_size: 32
+#num_layers: 2
+#n_decoder_layers: 1
+#model: att_lstm_enc_dec
+#hidden_size: 32
+#num_layers: 2
+#dim_val: 32
+#n_encoder_layers: 1
+#n_heads: 2
 #model: transformer
 #dim_val: 64
 #n_heads: 2
 #n_encoder_layers: 1
 #n_decoder_layers: 1
-#model: dlinear
-#individual: False
-#channel : 1
 ##model: meaformer
 #hidden_size: 512
 #S : 512
@@ -251,8 +268,8 @@ model: linear
 #hidden_size: 10
 DEVICE: cuda:0
 train_portion: 0.6
-early_stopping_patience: 30
-num_epochs: 100
+early_stopping_patience: 50
+num_epochs: 500
 teacher_forcing: 0.5
 print_interval: 1
 displaying_progress_bar: True

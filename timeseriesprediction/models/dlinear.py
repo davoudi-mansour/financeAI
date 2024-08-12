@@ -38,7 +38,7 @@ class Dlinear(nn.Module):
 
     def forward(self, src, trg, trg_y, trg_teacher_forcing, epoch_portion=0):
         x = src
-        seasonal_init, trend_init = self.decompsition(x)
+        seasonal_init, trend_init = self.decomposition(x)
 
         if self.individual:
             seasonal_output = torch.zeros([seasonal_init.size(0), seasonal_init.size(1), self.pred_len],

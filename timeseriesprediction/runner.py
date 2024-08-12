@@ -60,7 +60,7 @@ if __name__ == '__main__':
 #         print('loss in runner :', loss_run, loss_run2)
 #         print('nemidunam_runner : {}, {}'.format(model_trainer.evaluate_test['rmse_components'], model_trainer.evaluate_test['rmse']))
 
-        # visualize_metrics(model_trainer, show_plot=False, save_plot=True)
+        visualize_metrics(model_trainer, show_plot=False, save_plot=True)
         print('Train finished!')
 
     elif running_mode == 'finetune':

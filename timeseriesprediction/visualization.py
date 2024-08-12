@@ -114,8 +114,8 @@ def visualize_ts(trainer, show_plot=False, save_plot=False, i_component=-1, y_id
         elif trainer.ts_ds.mode == 'train_test':
             fig.add_trace(go.Scatter(
                 # [trainer.params['seq_len_in']:-num_components + 1]
-                x=pd.concat([trainer.data_train, trainer.data_val])['ds'].values,
-                y=pd.concat([trainer.data_train, trainer.data_val])['y_' + str(y_id)].values,
+                x=pd.concat([trainer.data_train, trainer.data_val[trainer.params['seq_len_in']:]])['ds'].values,
+                y=pd.concat([trainer.data_train, trainer.data_val[trainer.params['seq_len_in']:]])['y_' + str(y_id)].values,
                 name='ground truth'))
 
 
@@ -125,7 +125,7 @@ def visualize_ts(trainer, show_plot=False, save_plot=False, i_component=-1, y_id
 
 
     fig.update_layout(
-        title=str(trainer.params['target_columns'][y_id]) + ' --- ' + str(trainer.params['time_freq']),
+        title=str(trainer.params['target_columns'][y_id]) + ' --- ' + str(trainer.params['time_freq']) + '---' +' Timestep:'+ str(i_component+1),
         xaxis_title="Date Time",
         yaxis_title="Value"
     )

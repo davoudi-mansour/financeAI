@@ -1,8 +1,8 @@
 import plotly
 import os
 
-i_component = 1
-target = 'Close'
+i_component = 0
+target = 'High'
 
 fig = plotly.io.read_json(os.path.join('./plot', 'i_' + str(i_component) + "_" + target + '.json'))
 
