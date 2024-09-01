@@ -18,7 +18,7 @@ class EarlyStopping:
 
     def step(self, model, metric_tracker):
         val_loss = metric_tracker.val_loss[self.metric][-1]
-        epoch = len(metric_tracker.val_loss[self.metric]) + 1
+        epoch = len(metric_tracker.val_loss[self.metric])
         if self.best_loss is None:
             self.best_loss = val_loss
             self.save_checkpoint(epoch, val_loss, model)

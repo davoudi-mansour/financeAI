@@ -1,5 +1,5 @@
 gridsearch_output_path: ./config/gridsearch_output.yml
-dataset_path: ./datasets/data.csv
+dataset_path: ./datasets/EURUSD_HourlyIndicators&Fundamental.csv
 anomaly_dates_path: ./datasets/anomaly_dates.conf
 plots_directory: ./plot
 ts_plot_filename: ts.png
@@ -7,18 +7,82 @@ tmp_directory: ./tmp
 save_model_path: ./model_files/model.pt
 datetime_column: date
 target_columns:
+#  - Close
   - High
-  - Low
 input_columns:
+  - Open
   - High
   - Low
   - Close
-
-DEVICE: cpu
-train_portion: 0.5
+  - Volume
+  - FI5
+  - C%
+  - NVI
+  - MFI
+  - EMA10
+  - MACD
+  - RSI10
+  - CCI
+  - H-L
+  - H-Cp
+  - ROC
+  - Williams%R
+  - OBV
+  - ADX14
+  - KST
+  - KST9
+  - TR
+  - BBH
+  - RSI14
+  - V%
+  - AO
+  - BBL
+  - FI
+  - SEMV
+  - TSI
+  - DPO
+  - ADX7
+  - SMA5
+  - SMA10
+  - SMA20
+  - EMA6
+  - EMA14
+  - L-Cp
+  - ATR
+#  - USD_GDPA_Dev
+#  - USD_S&PGSPMI_Dev
+#  - USD_ISMMPMI_Dev
+#  - USD_FOM_Dev
+#  - USD_RetS_Dev
+#  - USD_RetSxA_Dev
+#  - USD_ISMSPMI_Dev
+#  - USD_PhFMS_Dev
+#  - USD_HS_Dev
+#  - USD_CPIM_Dev
+#  - USD_CPIY_Dev
+#  - USD_CPIexFEM_Dev
+#  - USD_CPIexFEY_Dev
+#  - USD_PPIM_Dev
+#  - USD_PPIY_Dev
+#  - USD_PPIexFEM_Dev
+#  - USD_NFP_Dev
+#  - USD_NYESMI_Dev
+#  - USD_IPM_Dev
+#  - EUR_GERRetSM_Dev
+#  - EUR_GERHCOBSPMI_Dev
+#  - EUR_GERHCOBMPMI_Dev
+#  - EUR_GERHCOBCPMI_Dev
+#  - EUR_EURZEWSES_Dev
+#  - EUR_GERZEWSES_Dev
+#  - EUR_GERIFOBC_Dev
+#  - EUR_GERIFOCA_Dev
+#  - EUR_GERIFOE_Dev
+#  - EUR_GERFOsaM_Dev
+DEVICE: cuda:0
+train_portion: 0.6
 teacher_forcing: 0.5
 early_stopping_patience: 20
-num_epochs: 3
+num_epochs: 20
 print_interval: False
 displaying_progress_bar: False
 show_anomalies_in_plot: False

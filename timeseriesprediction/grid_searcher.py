@@ -40,7 +40,7 @@ class GridSearcher:
                 print("##############")
                 print("##############")
                 print("##############")
-                print(model_params)
+                print("model_params: ", model_params)
 
                 score = self.train_with_params(model_params)
                 # score = 1
@@ -65,5 +65,5 @@ class GridSearcher:
         model_trainer = Trainer(model_config_path='tmp/tmp_grid_search.yml')
         model_trainer.train()
         score = model_trainer.evaluate_test['smape']
-        print(score)
+        print("score: ", score)
         return score

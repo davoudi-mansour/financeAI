@@ -1,55 +1,134 @@
 time_freq:
   - 1H
 seq_len_in: # number of time_freqs for encoder input
-  - 10
-#  - 336
-#  - 504
-#  - 672
+  - 12
+  - 24
+  - 48
+  - 96
+  - 144
 seq_len_dec: # number of time_freqs for decoder input
-  - 1
+  - 24
 seq_len_out: # number of time_freqs for decoder output
-  - 1
+  - 192
 batch_size:
-  - 2
-#  - 128
-#  - 256
+  - 64
+  - 128
+  - 256
+  - 512
+  - 1024
 lr:
+  - 0.1
   - 0.01
-#  - 0.001
-#  - 0.0001
+  - 0.001
+#  - 0.003
+  - 0.0001
 model:
-  - linear
-  - lstm
-  - transformer
+#  - linear
+  - dlinear
+#  - lstm
+#  - lstm_enc_dec
+#  - dlstm_enc_dec
+#  - att_lstm_enc_dec
+#  - transformer
+#  - meaformer
+#  - dmeaformer
+#  - tcdformer
 model_hyper_params:
   linear:
       hidden_size:
           - 64
-#          - 128
-#          - 256
+  dlinear:
+    individual:
+      - False
+    channel :
+      - 1
   lstm:
-      hidden_size:
-          - 16
-#          - 32
-#          - 64
-      num_layers:
-          - 1
-#          - 2
-#          - 3
+    hidden_size:
+      - 16
+##      - 32
+##      - 64
+    num_layers:
+      - 1
+##      - 2
+##      - 3
+  lstm_enc_dec:
+    hidden_size:
+      - 16
+    num_layers:
+      - 1
+  dlstm_enc_dec:
+    hidden_size:
+      - 16
+    num_layers:
+      - 1
+  att_lstm_enc_dec:
+    hidden_size:
+      - 16
+    num_layers:
+      - 1
+    dim_val:
+      - 32
+    n_encoder_layers:
+      - 1
+    n_heads:
+      - 1
   transformer:
       dim_val:
-          - 16
+#          - 16
 #          - 32
-#          - 64
+          - 64
+#          - 128
       n_heads:
-          - 1
-#          - 2
-#          - 4
+#          - 1
+          - 2
+          - 4
+#          - 8
       n_encoder_layers:
-          - 1
-#          - 2
+#          - 1
+          - 2
 #          - 3
+          - 4
       n_decoder_layers:
-          - 1
-#          - 2
+#          - 1
+          - 2
 #          - 3
+          - 4
+  meaformer:
+    hidden_size:
+      - 32
+    S:
+      - 512
+    n_encoder_layers:
+      - 1
+    n_decoder_layers:
+      - 1
+  dmeaformer:
+    hidden_size:
+      - 32
+    S:
+      - 512
+    n_encoder_layers:
+      - 1
+    n_decoder_layers:
+      - 1
+  tcdformer:
+    n_encoder_layers:
+      - 1
+    n_decoder_layers:
+      - 1
+    version:
+      - Fourier   #Wavelet, Fourier, Time
+    moving_avg:
+      - 24
+    dropout:
+      - 0.05
+    d_model:
+      - 64
+    modes:
+      - 16
+    activation:
+      - softmax
+    window_size:
+      - 5
+    hidden_size:
+      - 10
