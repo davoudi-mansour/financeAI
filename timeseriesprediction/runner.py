@@ -3,6 +3,7 @@ from trainer import Trainer
 from fine_tuner import FineTuner
 from tester import Tester
 from grid_searcher import GridSearcher
+from param_tuner import ParamTuner
 from visualization import visualize_ts, visualize_metrics
 from metrics import mse, rmse, mae, smape
 import numpy as np
@@ -12,7 +13,7 @@ from torch import nn
 
 if __name__ == '__main__':
     running_mode = sys.argv[1]
-    if running_mode in ('train', 'test', 'finetune', 'gridsearch'):
+    if running_mode in ('train', 'test', 'finetune', 'gridsearch', 'paramtune'):
         print(f'{running_mode} started!')
     else:
         exit(f'running mode "{running_mode}" is not supported!')
@@ -81,3 +82,9 @@ if __name__ == '__main__':
                                            gridsearch_space_config_path='./config/grid_search_space.yml')
         model_grid_searcher.gridsearch()
         print('Grid Search finished!')
+
+    elif running_mode == 'paramtune':
+        model_param_tuner = ParamTuner(gridsearch_config_path='./config/grid_search.yml',
+                                           gridsearch_space_config_path='./config/grid_search_space.yml')
+        model_param_tuner.paramtune()
+        print('Param Tune finished!')
