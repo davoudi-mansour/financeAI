@@ -61,7 +61,7 @@ def get_model(model_params=None):
         output_size = num_outputs
         n_encoder_layers = model_params['n_encoder_layers']
         dim_val = model_params['dim_val']
-        dim_feedforward_encoder= model_params['dim_val']
+        dim_feedforward_encoder = model_params['dim_val']
         n_heads = model_params['n_heads']
         model = AttentionLSTM(input_size=input_size,
                               hidden_size=hidden_size,

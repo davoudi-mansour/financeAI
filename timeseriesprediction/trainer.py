@@ -85,7 +85,8 @@ class Trainer:
             # pred, y = self.model(norm_src(src, mode='norm'),
             #                      norm_trg(trg, mode='norm'),
             #                      norm_trg_y(trg_y, mode='norm'),
-            #                      norm_trg_teacher_forcing(trg_teacher_forcing, mode='norm'))
+            #                      norm_trg_teacher_forcing(trg_teacher_forcing, mode='norm'),
+            #                      epoch_portion=epoch / self.params['num_epochs'])
 
 
             preds.append(pred.cpu().detach().numpy())
@@ -155,7 +156,8 @@ class Trainer:
                 pred, y = self.model(norm_src.normalize(src),
                                      norm_trg.normalize(trg),
                                      norm_trg_y.normalize(trg_y),
-                                     norm_trg_teacher_forcing.normalize(trg_teacher_forcing))
+                                     norm_trg_teacher_forcing.normalize(trg_teacher_forcing),
+                                     epoch_portion=1)
 
                 pred_denorm = norm_trg_y.denormalize(pred)
                 y_denorm = norm_trg_y.denormalize(y)
@@ -174,7 +176,8 @@ class Trainer:
                 # pred, y = self.model(norm_src(src, mode='norm'),
                 #                      norm_trg(trg, mode='norm'),
                 #                      norm_trg_y(trg_y, mode='norm'),
-                #                      norm_trg_teacher_forcing(trg_teacher_forcing, mode='norm'))
+                #                      norm_trg_teacher_forcing(trg_teacher_forcing, mode='norm'),
+                #                      epoch_portion=1)
                 #
                 # pred_denorm = norm_trg_y(pred, mode='denorm')
                 # y_denorm = norm_trg_y(y, mode='denorm')
