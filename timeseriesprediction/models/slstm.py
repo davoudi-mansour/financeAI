@@ -30,10 +30,7 @@ class LSTM(nn.Module):
 
         outputs = output[:, output.shape[1] - 1:, :]
         outputs = self.linear(outputs)
-        # outputs.append(decoder_output)
 
         # outputs: (batch_size, seq_length, output_size)
-        # outputs = torch.stack(output, dim=1)
-        # outputs = outputs.view((outputs.size(0), outputs.size(1), outputs.size(3)))
         outputs = outputs.view(outputs.size(0), -1, self.output_size)
         return outputs, trg_y
