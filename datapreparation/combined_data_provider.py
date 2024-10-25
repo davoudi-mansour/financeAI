@@ -32,7 +32,7 @@ def calculate_volatility_ratio():
 
         for event, df in fundamentals_df.items():
             # print(event)
-            df = df.set_index('date')
+            df = df.set_index('Date')
             for w in df.index:
                 idx = market_df.index.get_indexer([w], method='ffill')
                 i = idx[0]

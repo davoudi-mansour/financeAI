@@ -31,9 +31,7 @@ class ParamTuner:
             # print(params)
             if len(params_list[i]) > 1:
                 params[i] = params_list[i]
-                # print('params : ', params)
                 states = list(itertools.product(*params))
-        #         # print('states : ', states)
                 best_state_score = np.inf
                 best_state = 0
                 for j in range(0, len(states)):
@@ -60,6 +58,7 @@ class ParamTuner:
         print('best_params =', best_params)
 
         return best_params, best_score
+
     def train_with_params(self, params):
         trainer_params = params.copy()
         trainer_params.update(self.gridsearch_config)

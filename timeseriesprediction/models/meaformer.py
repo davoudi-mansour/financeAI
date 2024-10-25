@@ -8,8 +8,6 @@ class MEAformer(nn.Module):
         self.pred_len = pred_len
         self.num_outputs = num_outputs
 
-        # self.channels = configs.enc_in
-
         self.encoder = Encoder(
             [LEncoderLayer(self.seq_len, S) for l in range(n_encoder_layers)]
         )
@@ -21,7 +19,6 @@ class MEAformer(nn.Module):
         )
 
     def forward(self, src, trg, trg_y, trg_teacher_forcing, epoch_portion=0):
-        # x: [Batch, Input length, Channel]
         x = src
         x = self.encoder(x)
         x = x.permute(0, 2, 1)
@@ -47,7 +44,6 @@ class LEncoderLayer(nn.Module):
         super().__init__()
         self.seq_len = seq_len
 
-        # self.attn = nn.LSTM(seq_len, hidden_size)
         self.attn = TemporalExternalAttn(seq_len, S)
         self.drop1 = nn.Dropout(0.2)
         self.feed2 = nn.Linear(seq_len, seq_len)
@@ -60,7 +56,6 @@ class LEncoderLayer(nn.Module):
             self.norm2 = nn.BatchNorm1d(seq_len)
 
     def forward(self, x):
-        # x = self.feed1(x)
         attn = self.attn(x.permute(0, 2, 1))
         x = x + attn.permute(0, 2, 1)
         if self.norm == 'ln':
@@ -87,7 +82,6 @@ class TemporalExternalAttn(nn.Module):
 
         attn = self.mk(queries)  # bs,n,S
         attn = self.softmax(attn)  # bs,n,S
-        # attn = attn / torch.sum(attn, dim=2, keepdim=True)  # bs,n,S
 
         out = self.mv(attn)  # bs,n,d_model
         return out

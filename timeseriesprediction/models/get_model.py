@@ -8,9 +8,7 @@ from . import TCDformer
 from . import DEncoderDecoderLSTM
 from . import LSTM
 from . import LSTM_MLP
-from . import AttentionLSTM
-import sys
-import torch
+from . import TransformerLSTM
 
 
 def get_model(model_params=None):
@@ -28,9 +26,7 @@ def get_model(model_params=None):
                        seq_len_out=seq_len_out)
 
     elif model_params['model'] == 'dlinear':
-        individual = model_params['individual']
-        channel = model_params['channel']
-        model = Dlinear(seq_len=seq_len_in, pred_len=seq_len_out,num_features=num_features, num_outputs=num_outputs, individual=individual, channel=channel)
+        model = Dlinear(seq_len=seq_len_in, pred_len=seq_len_out, num_features=num_features, num_outputs=num_outputs)
 
     elif model_params['model'] == 'lstm':
         input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
@@ -47,7 +43,7 @@ def get_model(model_params=None):
         input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
         output_size = num_outputs
         model = DEncoderDecoderLSTM(input_size, hidden_size, output_size, num_layers, seq_len_in, seq_len_out,
-                                   seq_len_dec, teacher_forcing)
+                                    seq_len_dec, teacher_forcing)
 
 
     elif model_params['model'] == 'lstm_mlp':
@@ -56,27 +52,27 @@ def get_model(model_params=None):
         n_decoder_layers = model_params['n_decoder_layers']
         model = LSTM_MLP(input_size, hidden_size, output_size, num_layers, seq_len_in, seq_len_out, n_decoder_layers)
 
-    elif model_params['model'] == 'att_lstm_enc_dec':
+    elif model_params['model'] == 'transformer_lstm':
         input_size, hidden_size, num_layers = num_features, model_params['hidden_size'], model_params['num_layers']
         output_size = num_outputs
         n_encoder_layers = model_params['n_encoder_layers']
         dim_val = model_params['dim_val']
         dim_feedforward_encoder = model_params['dim_val']
         n_heads = model_params['n_heads']
-        model = AttentionLSTM(input_size=input_size,
-                              hidden_size=hidden_size,
-                              output_size=output_size,
-                              num_layers=num_layers,
-                              seq_len_in=seq_len_in,
-                              seq_len_out=seq_len_out,
-                              seq_len_dec=seq_len_dec,
-                              dim_val=dim_val,
-                              n_encoder_layers=n_encoder_layers,
-                              n_heads=n_heads,
-                              batch_first=False,
-                              dim_feedforward_encoder=dim_feedforward_encoder,
-                              teacher_forcing=teacher_forcing
-                              )
+        model = TransformerLSTM(input_size=input_size,
+                                hidden_size=hidden_size,
+                                output_size=output_size,
+                                num_layers=num_layers,
+                                seq_len_in=seq_len_in,
+                                seq_len_out=seq_len_out,
+                                seq_len_dec=seq_len_dec,
+                                dim_val=dim_val,
+                                n_encoder_layers=n_encoder_layers,
+                                n_heads=n_heads,
+                                batch_first=False,
+                                dim_feedforward_encoder=dim_feedforward_encoder,
+                                teacher_forcing=teacher_forcing
+                                )
 
     elif model_params['model'] == 'transformer':
         ## Model parameters
@@ -102,7 +98,6 @@ def get_model(model_params=None):
             input_size=input_size,
             enc_seq_len=enc_seq_len,
             dec_seq_len=dec_seq_len,
-            # max_seq_len=max_seq_len,
             out_seq_len=output_sequence_length,
             n_decoder_layers=n_decoder_layers,
             n_encoder_layers=n_encoder_layers,
@@ -146,7 +141,4 @@ def get_model(model_params=None):
                            moving_avg=moving_avg, d_model=d_model, dropout=dropout, modes=modes, activation=activation,
                            window_size=window_size, hidden_size=hidden_size)
     model.to(DEVICE)
-    # device = torch.device("cuda:0")
-    # model.to(device)
-    # print('number of model params:', sum(p.numel() for p in model.parameters()))
     return model

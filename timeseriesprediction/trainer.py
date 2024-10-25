@@ -76,19 +76,6 @@ class Trainer:
                                  norm_trg_teacher_forcing.normalize(trg_teacher_forcing),
                                  epoch_portion=epoch / self.params['num_epochs'])
 
-            #######################################################################################
-            # norm_src = RevIN(num_features=src.shape[2]).cuda()
-            # norm_trg = RevIN(num_features=trg.shape[2]).cuda()
-            # norm_trg_y = RevIN(num_features=trg_y.shape[2]).cuda()
-            # norm_trg_teacher_forcing = RevIN(num_features=trg_teacher_forcing.shape[2]).cuda()
-            #
-            # pred, y = self.model(norm_src(src, mode='norm'),
-            #                      norm_trg(trg, mode='norm'),
-            #                      norm_trg_y(trg_y, mode='norm'),
-            #                      norm_trg_teacher_forcing(trg_teacher_forcing, mode='norm'),
-            #                      epoch_portion=epoch / self.params['num_epochs'])
-
-
             preds.append(pred.cpu().detach().numpy())
             ys.append(y.cpu().detach().numpy())
             loss = self.loss_fn_mean(pred, y)
@@ -166,26 +153,6 @@ class Trainer:
                 preds_denorm.append(pred_denorm.cpu().detach().numpy())
                 ys_denorm.append(y_denorm.cpu().detach().numpy())
 
-                ######################################################################
-
-                # norm_src = RevIN(num_features=src.shape[2]).cuda()
-                # norm_trg = RevIN(num_features=trg.shape[2]).cuda()
-                # norm_trg_y = RevIN(num_features=trg_y.shape[2]).cuda()
-                # norm_trg_teacher_forcing = RevIN(num_features=trg_teacher_forcing.shape[2]).cuda()
-                #
-                # pred, y = self.model(norm_src(src, mode='norm'),
-                #                      norm_trg(trg, mode='norm'),
-                #                      norm_trg_y(trg_y, mode='norm'),
-                #                      norm_trg_teacher_forcing(trg_teacher_forcing, mode='norm'),
-                #                      epoch_portion=1)
-                #
-                # pred_denorm = norm_trg_y(pred, mode='denorm')
-                # y_denorm = norm_trg_y(y, mode='denorm')
-                # preds.append(pred.cpu().detach().numpy())
-                # ys.append(y.cpu().detach().numpy())
-                # preds_denorm.append(pred_denorm.cpu().detach().numpy())
-                # ys_denorm.append(y_denorm.cpu().detach().numpy())
-
             if len(preds) > 0:
                 preds = np.concatenate(preds)
             else:
@@ -204,8 +171,6 @@ class Trainer:
             else:
                 ys_denorm = np.array(ys_denorm)
 
-        # preds = self.normalizer.denormalize(preds)
-        # ys = self.normalizer.denormalize(ys)
         loss = nn.MSELoss()(torch.Tensor(preds), torch.Tensor(ys)).item()
         return_dict = dict()
         return_dict['preds'] = preds_denorm

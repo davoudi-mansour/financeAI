@@ -11,44 +11,13 @@ import pandas as pd
 plt.ioff()
 
 
-def apply_anomalies(ds, anomaly_dates):
-    is_in_indices = ds.time_index[ds.time_index.floor('D').isin(anomaly_dates)]
-
-    new_vals = []
-    anomal_count = 0
-    for i in ds:
-        if i.time_index.isin(is_in_indices):
-            coef = 1.9 + (random.random() / 5) if int(
-                str(i.time_index.strftime("%Y-%m-%d")[0])[-1]) % 2 == 0 else 0.25 + (random.random() / 10)
-            new_vals.append(i.values() * coef)
-            anomal_count += 1
-        else:
-            new_vals.append(i.values())
-    return TimeSeries.from_times_and_values(ds.time_index, new_vals)
-
-
 def visualize_ts(trainer, show_plot=False, save_plot=False, i_component=-1, y_id=0):
-    if 'train' in trainer.ts_ds.mode:
-        preds_train = trainer.evaluate_train['preds'].copy()
-
-        actual_values_train = trainer.data_train
-        if trainer.params['show_anomalies_in_plot'] and False:
-            actual_values_train_anomal = apply_anomalies(actual_values_train, trainer.ts_ds.anomaly_dates)
-
     if 'test' in trainer.ts_ds.mode:
-
         preds_test = trainer.evaluate_test['preds'].copy()
-        num_components = trainer.evaluate_test['preds'].shape[1]
-        ys_test = trainer.evaluate_test['ys'].copy()
         pred_values_test = TimeSeries.from_times_and_values(
             pd.DatetimeIndex(trainer.data_val[trainer.params['seq_len_in']+i_component:i_component-trainer.params['seq_len_out']+1]['ds'].values,
                              freq=trainer.params['time_freq']),
                             preds_test[:, i_component, y_id])
-
-        actual_values_test = trainer.data_val[trainer.params['seq_len_in']:]
-
-        if trainer.params['show_anomalies_in_plot'] and False:
-            actual_values_test_anomal = apply_anomalies(actual_values_test, trainer.ts_ds.anomaly_dates)
 
     if os.path.isfile(os.path.join(trainer.params['plots_directory'],
                                'i_' + str(i_component) + "_" + str(trainer.params['target_columns'][y_id]) + '.json')):
@@ -116,9 +85,7 @@ def visualize_metrics(trainer, show_plot=False, save_plot=False):
         title = str(trainer.params['time_freq']) + ' | ' + metric
 
         train_metric = trainer.metric_tracker.train_loss[metric]
-        #     train_losses = np.array(cb.train_loss)[np.array(cb.train_loss)<100_000]
         val_metric = trainer.metric_tracker.val_loss[metric]
-        #     val_losses = np.array(cb.val_loss)[np.array(cb.train_loss)<100_000]
         x = range(len(train_metric))
         fig = plt.figure()
         ax1 = fig.add_subplot(111)

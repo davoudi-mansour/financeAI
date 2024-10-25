@@ -54,7 +54,6 @@ class RevIN(nn.Module):
         return x
 
     def _init_params(self):
-        # initialize RevIN params: (C,)
         self.affine_weight = nn.Parameter(torch.ones(self.num_features))
         self.affine_bias = nn.Parameter(torch.zeros(self.num_features))
 

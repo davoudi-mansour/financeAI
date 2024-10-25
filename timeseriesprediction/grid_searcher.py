@@ -23,7 +23,6 @@ class GridSearcher:
             if k != 'model_hyper_params':
                 hyperparams.append(v)
         hyperparams = list(itertools.product(*hyperparams))
-        results = []
         # iterate over all combinations of hyperparameters
         for params in hyperparams:
             # construct model
@@ -35,15 +34,14 @@ class GridSearcher:
             # generate all possible combinations of hyperparameters in model_hyperparams
             model_hyperparams = self.gridsearch_space['model_hyper_params'][model_type]
             hyperparam_values = list(itertools.product(*model_hyperparams.values()))
+            print(hyperparams)
             for hyperparams in hyperparam_values:
                 model_params.update(dict(zip(model_hyperparams.keys(), hyperparams)))
-                print("##############")
                 print("##############")
                 print("##############")
                 print("model_params: ", model_params)
 
                 score = self.train_with_params(model_params)
-                # score = 1
                 if score < best_score:
                     best_score = score
                     best_params = model_params

@@ -6,9 +6,6 @@ from grid_searcher import GridSearcher
 from param_tuner import ParamTuner
 from visualization import visualize_ts, visualize_metrics
 from metrics import mse, rmse, mae, smape
-import numpy as np
-import torch
-from torch import nn
 
 
 if __name__ == '__main__':
@@ -31,11 +28,9 @@ if __name__ == '__main__':
         print(f'loss Components Normalized : {model_trainer.evaluate_test["loss_components"]}')
 
         #-----------------------------------------------------------------------------------------------------#
-        # visualize_ts(model_trainer, show_plot=True, save_plot=False)
         for y_id, target_column in enumerate(model_trainer.params['target_columns']):
             for i_component in range(0, model_trainer.params['seq_len_out']-1):
                 visualize_ts(model_trainer, show_plot=False, save_plot=False, i_component=i_component, y_id=y_id)
-
 
         visualize_metrics(model_trainer, show_plot=False, save_plot=True)
         print('Train finished!')
@@ -43,14 +38,12 @@ if __name__ == '__main__':
     elif running_mode == 'finetune':
         model_fine_tuner = FineTuner('./config/fine_tune.yml')
         model_fine_tuner.finetune()
-        #visualize_ts(model_fine_tuner, show_plot=False, save_plot=True)
-        #visualize_metrics(model_fine_tuner, show_plot=False, save_plot=True)
         print('Fine Tune finished!')
 
     elif running_mode == 'test':
         model_tester = Tester('./config/test.yml')
         model_tester.test()
-        visualize_ts(model_tester, show_plot=True, save_plot=True)
+        visualize_ts(model_tester, show_plot=False, save_plot=False)
         print('Test finished!')
 
     elif running_mode == 'gridsearch':
@@ -61,6 +54,6 @@ if __name__ == '__main__':
 
     elif running_mode == 'paramtune':
         model_param_tuner = ParamTuner(gridsearch_config_path='./config/grid_search.yml',
-                                           gridsearch_space_config_path='./config/grid_search_space.yml')
+                                        gridsearch_space_config_path='./config/grid_search_space.yml')
         model_param_tuner.paramtune()
         print('Param Tune finished!')

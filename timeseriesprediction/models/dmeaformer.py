@@ -1,9 +1,6 @@
-# encoding=utf-8
-import torch
 import torch.nn as nn
 from .utils import series_decomp
-import torch.nn.functional as F
-import numpy as np
+
 
 class DMEAformer(nn.Module):
     def __init__(self, seq_len, pred_len, S, n_encoder_layers, n_decoder_layers, hidden_size, num_features, num_outputs):
@@ -12,7 +9,6 @@ class DMEAformer(nn.Module):
         self.pred_len = pred_len
         self.num_outputs = num_outputs
 
-        # self.channels = enc_in
         self.decomp1 = series_decomp(25)
         self.encoder1 = Encoder(
             [LEncoderLayer(self.seq_len, S) for l in range(n_encoder_layers)]
@@ -28,17 +24,13 @@ class DMEAformer(nn.Module):
         )
 
     def forward(self, src, trg, trg_y, trg_teacher_forcing, epoch_portion=0):
-        # x: [Batch, Input length, Channel]
         x = src
-        # rev = RevIN(x.size(2)).cuda()
-        # x = rev(x, 'norm')
         seasonal_init, trend_init = self.decomp1(x)
         seasonal1 = self.encoder1(seasonal_init)
         trend1 = self.encoder2(trend_init)
         out = seasonal1.permute(0, 2, 1) + trend1.permute(0, 2, 1)
         out = out.view(out.size(0), -1)
         x = self.decoder1(out)
-        # x = rev(x, 'denorm')
         pred = x.view(x.size(0), -1, self.num_outputs)
         return pred, trg_y
 
@@ -59,7 +51,6 @@ class LEncoderLayer(nn.Module):
         super().__init__()
         self.seq_len = seq_len
 
-        # self.attn = nn.LSTM(seq_len, hidden_size)
         self.attn = TemporalExternalAttn(seq_len, S)
         self.drop1 = nn.Dropout(0.2)
         self.feed2 = nn.Linear(seq_len, seq_len)
@@ -72,7 +63,6 @@ class LEncoderLayer(nn.Module):
             self.norm2 = nn.BatchNorm1d(seq_len)
 
     def forward(self, x):
-        # x = self.feed1(x)
         attn = self.attn(x.permute(0, 2, 1))
         x = x + attn.permute(0, 2, 1)
         if self.norm == 'ln':
@@ -98,7 +88,6 @@ class TemporalExternalAttn(nn.Module):
     def forward(self, queries):
         attn = self.mk(queries)  # bs,n,S
         attn = self.softmax(attn)  # bs,n,S
-        # attn = attn / torch.sum(attn, dim=2, keepdim=True)  # bs,n,S
         out = self.mv(attn)  # bs,n,d_model
         return out
 

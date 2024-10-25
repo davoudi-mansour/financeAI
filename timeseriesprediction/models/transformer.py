@@ -1,8 +1,6 @@
 import torch
 from torch import nn, Tensor
-import torch.nn.functional as F
 import math
-import random
 
 
 class PositionalEncoder(nn.Module):
@@ -53,7 +51,6 @@ class PositionalEncoder(nn.Module):
         if self.batch_first:
             x_pe = x_pe.view((x_pe.size(1), x_pe.size(0), x_pe.size(2)))
 
-        # print(x.shape,self.pe.shape, x_pe.shape)
         x = x + x_pe
 
         return self.dropout(x)
@@ -113,9 +110,6 @@ class TimeSeriesTransformer(nn.Module):
         self.counter = 0
         self.teacher_forcing = teacher_forcing
         self.epoch_portion = 0
-
-        # print("input_size is: {}".format(input_size))
-        # print("dim_val is: {}".format(dim_val))
 
         # Creating the three linear layers needed for the model
         self.encoder_input_layer = nn.Linear(
@@ -236,18 +230,14 @@ class TimeSeriesTransformer(nn.Module):
 
         src, tgt, trg_teacher_forcing = src, trg, trg_teacher_forcing
         self.counter += 1
-        # print("From model.forward(): Size of src as given to forward(): {}".format(src.size()))
-        # print("From model.forward(): tgt size = {}".format(tgt.size()))
 
         # Pass throguh the input layer right before the encoder
-        src = self.encoder_input_layer(
-            src)  # src shape: [batch_size, src length, dim_val] regardless of number of input features
-        # print("From model.forward(): Size of src after input layer: {}".format(src.size()))
+        src = self.encoder_input_layer(src)  # src shape: [batch_size, src length, dim_val] regardless of number of input features
+
 
         # Pass through the positional encoding layer
         src = self.positional_encoding_layer(
             src)  # src shape: [batch_size, src length, dim_val] regardless of number of input features
-        # print("From model.forward(): Size of src after pos_enc layer: {}".format(src.size()))
 
         # Pass through all the stacked encoder layers in the encoder
         # Masking is only needed in the encoder if input sequences are padded
@@ -257,7 +247,6 @@ class TimeSeriesTransformer(nn.Module):
         encoder_hidden = self.encoder(  # src shape: [batch_size, enc_seq_len, dim_val]
             src=src
         )
-        # print("From model.forward(): Size of src after encoder: {}".format(src.size()))
         decoder_hidden = encoder_hidden
 
         teacher_forcing = self.is_teacher_forcing()
@@ -267,12 +256,7 @@ class TimeSeriesTransformer(nn.Module):
             # decoder_input = trg_teacher_forcing
             decoder_output = self.decoder_input_layer(
                 decoder_input)  # src shape: [target sequence length, batch_size, dim_val] regardless of number of input features
-            # print("From model.forward(): Size of decoder_output aftetrgr linear decoder layer: {}".format(decoder_output.size()))
 
-            # if src_mask is not None:
-            # print("From model.forward(): Size of src_mask: {}".format(src_mask.size()))
-            # if tgt_mask is not None:
-            # print("From model.forward(): Size of tgt_mask: {}".format(tgt_mask.size()))
             src_mask, tgt_mask = self.generate_masks(decoder_output.shape[0])
 
             # Pass throguh decoder - output shape: [batch_size, target seq len, dim_val]
@@ -283,14 +267,9 @@ class TimeSeriesTransformer(nn.Module):
                 memory_mask=src_mask
             )
 
-            # print("From model.forward(): decoder_output shape after decoder: {}".format(decoder_output.shape))
-
             # Pass through linear mapping
             decoder_output = self.linear_mapping(decoder_output)  # shape [batch_size, target seq len]
-            # print("From model.forward(): decoder_output size after linear_mapping = {}".format(decoder_output.size()))
             decoder_output_trg = decoder_output[decoder_output.shape[0] - trg_teacher_forcing.shape[0]:, :, :]
-            # print("teacher_forcing",teacher_forcing,"decoder_output=",decoder_output.shape,"tgt=",tgt.shape,"trg_teacher_forcing=",trg_teacher_forcing.shape,
-            #   "src=",src.shape,"decoder_input=",decoder_input.shape,"decoder_output_trg=",decoder_output_trg.shape )
 
         else:
             outputs = []
